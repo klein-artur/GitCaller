@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  All.swift
 //  
 //
 //  Created by Artur Hellmann on 29.12.22.

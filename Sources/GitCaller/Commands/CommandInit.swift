@@ -8,17 +8,17 @@
 import Foundation
 
 /// Git command for git init
-final class CommandInit: Command,
+public final class CommandInit: Command,
                             Quietable,
                             InitialBranchNamable
 {
-    override var command: String {
+    public override var command: String {
         "init"
     }
 }
 
 extension Git {
-    var initialize: CommandInit {
+    public var initialize: CommandInit {
         CommandInit(preceeding: self)
     }
 }

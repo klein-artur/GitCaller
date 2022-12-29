@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CommandSpec {
+public protocol CommandSpec {
     /// The preceeding command.
     var preceeding: CommandSpec? { get set }
     
@@ -19,7 +19,7 @@ protocol CommandSpec {
 }
 
 extension CommandSpec {
-    func resolve() -> String {
+    public func resolve() -> String {
         let (command, parameter) = internalResolve()
         let parameterString = parameter.map({ $0.command }).joined(separator: " ")
         
@@ -52,12 +52,12 @@ extension CommandSpec {
     }
 }
 
-class Command: Parametrable {
-    var parameter: [Parameter]
+public class Command: Parametrable {
+    public var parameter: [Parameter]
     
-    var preceeding: CommandSpec?
+    public var preceeding: CommandSpec?
     
-    var command: String {
+    public var command: String {
         ""
     }
     
@@ -69,7 +69,7 @@ class Command: Parametrable {
         self.preceeding = preceeding
     }
     
-    func copy() -> Self {
+    public func copy() -> Self {
         return Self.init(
             preceeding: self.preceeding, parameter: self.parameter
         )

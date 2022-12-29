@@ -7,16 +7,16 @@
 
 import Foundation
 
-protocol Parameter {
+public protocol Parameter {
     var command: String { get }
 }
 
-protocol Copyable {
+public protocol Copyable {
     /// Copies the current element with a new parameter
     func copy() -> Self
 }
 
-protocol Parametrable: CommandSpec, Copyable {
+public protocol Parametrable: CommandSpec, Copyable {
     /// The parameters this command will hold
     var parameter: [Parameter] { get set }
     
@@ -25,13 +25,13 @@ protocol Parametrable: CommandSpec, Copyable {
 }
 
 extension Parametrable {
-    func withAddedParameter(_ param: Parameter) -> Self {
+    internal func withAddedParameter(_ param: Parameter) -> Self {
         var result = copy()
         result.addParameter(param)
         return result
     }
     
-    mutating func addParameter(_ param: Parameter) {
+    public mutating func addParameter(_ param: Parameter) {
         self.parameter.append(param)
     }
 }

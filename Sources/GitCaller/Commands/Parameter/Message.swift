@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--message=<msg>` parameter.
-protocol Messageable: Parametrable {
+public protocol Messageable: Parametrable {
     func message(_ msg: String) -> Self
 }
 
@@ -25,7 +25,7 @@ internal class Message: Parameter {
 }
 
 extension Messageable {
-    func message(_ msg: String) -> Self {
+    public func message(_ msg: String) -> Self {
         return self.withAddedParameter(Message(message: msg))
     }
 }

@@ -7,7 +7,9 @@
 
 import Foundation
 
-class Git: CommandSpec {
-    var preceeding: CommandSpec? = nil
-    var command: String = "git"
+public class Git: CommandSpec {
+    public init() {}
+    
+    public var preceeding: CommandSpec? = nil
+    public var command: String = "git"
 }

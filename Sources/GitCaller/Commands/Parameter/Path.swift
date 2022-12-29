@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a path parameter.
-protocol Pathable: Parametrable {
+public protocol Pathable: Parametrable {
     func path(_ path: String) -> Self
 }
 
@@ -22,7 +22,7 @@ internal class Path: Parameter {
 }
 
 extension Pathable {
-    func path(_ path: String) -> Self {
+    public func path(_ path: String) -> Self {
         return self.withAddedParameter(Path(path))
     }
 }

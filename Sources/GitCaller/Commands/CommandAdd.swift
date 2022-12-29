@@ -7,17 +7,17 @@
 
 import Foundation
 
-final class CommandAdd: Command,
+public final class CommandAdd: Command,
                         Allable,
                         Pathable
 {
-    override var command: String {
+    public override var command: String {
         "add"
     }
 }
 
 extension Git {
-    var add: CommandAdd {
+    public var add: CommandAdd {
         return CommandAdd(preceeding: self)
     }
 }

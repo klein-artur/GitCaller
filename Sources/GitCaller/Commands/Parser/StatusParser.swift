@@ -70,7 +70,15 @@ public class StatusParser: GitParser, Parser {
             return .failure(error)
         }
         
-        guard let branchName = result.find(rgx: "On branch (.*)").first?[1] else {
+        var branchName = result.find(rgx: "On branch (.*)").first?[1]
+        var detached = false
+        
+        if let head = result.find(rgx: "(HEAD) detached").first?[1] {
+            branchName = head
+            detached = true
+        }
+        
+        guard let branchName = branchName else {
             return .failure(.noBranchNameFound)
         }
         
@@ -102,7 +110,8 @@ public class StatusParser: GitParser, Parser {
                     isLocal: true,
                     behind: behind,
                     ahead: ahead,
-                    upstream: upstream
+                    upstream: upstream,
+                    detached: detached
                 ),
                 stagedChanges: getStagedChanged(in: result),
                 unstagedChanges: getUnstagedChanges(in: result),

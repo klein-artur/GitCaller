@@ -212,5 +212,25 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unmergedChanges[1].kind, .bothModified)
         XCTAssertEqual(status.status, .unclean)
     }
+    
+    func testDetached() throws {
+        // given
+        let input = """
+        HEAD detached at 52324728
+        nothing to commit, working tree clean
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let status = try result.get()
+        
+        // then
+        XCTAssertEqual(status.branch.name, "HEAD")
+        XCTAssertTrue(status.branch.isLocal)
+        XCTAssertTrue(status.branch.upToDate)
+        XCTAssertNil(status.branch.upstream)
+        XCTAssertTrue(status.branch.detached)
+        XCTAssertEqual(status.status, .clean)
+    }
 
 }

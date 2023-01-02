@@ -31,6 +31,7 @@ struct GitCaller {
                 }
                 outHandle.waitForDataInBackgroundAndNotify()
             } else {
+                resultPublisher.send(completion: .finished)
                 NotificationCenter.default.removeObserver(updateObserver!)
             }
         })
@@ -69,9 +70,14 @@ struct GitCaller {
 }
 
 extension CommandSpec {
+    
+    /// Runs the current command and returns a `Publisher` that emits the states of the process.
     public func run() -> AnyPublisher<String, Never> {
         return GitCaller.run(command: self.resolve())
             .removeDuplicates()
+            .scan("", { lastResult, nextResult in
+                lastResult + nextResult
+            })
             .eraseToAnyPublisher()
     }
 }

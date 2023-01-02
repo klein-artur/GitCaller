@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Git command for `git log`
 public final class CommandLog: Command
 {
     public override var command: String {

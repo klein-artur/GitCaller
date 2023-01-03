@@ -21,16 +21,21 @@ public enum ParseError: Error {
     case notARepository
 }
 
+/// A protocol all parse results have to conform to.
+public protocol ParseResult {
+    var originalOutput: String { get }
+}
+
 /// Makes a git command parsable.
 public protocol Parsable: CommandSpec {
-    associatedtype Success
+    associatedtype Success: ParseResult
     associatedtype ParserType: Parser
     
     /// Returns the parser
     var parser: ParserType { get }
     
     /// Parses only the final result of the call and returns it.
-    func finalResult() -> AnyPublisher<Success, ParseError>
+    func finalResult() async throws -> Success
     
     /// Parses contiiously until the stream finishes and emits every parse state.
     func results() -> AnyPublisher<Self.Success, ParseError>
@@ -38,13 +43,12 @@ public protocol Parsable: CommandSpec {
 
 /// A parser base class to parse git results.
 public protocol Parser {
-    associatedtype Success
+    associatedtype Success: ParseResult
     
     /// parses the result by the means of the implementing class.
     func parse(result: String) -> Result<Success, ParseError>
+    
 }
-
-public protocol GitParserResult {}
 
 /// A base class for parsers.
 public class GitParser {
@@ -75,8 +79,15 @@ extension Parsable where Success == ParserType.Success {
             .eraseToAnyPublisher()
     }
     
-    public func finalResult() -> AnyPublisher<Success, ParseError> {
-        return doParsing(on: self.run().last().eraseToAnyPublisher())
+    public func finalResult() async throws -> Success {
+        let result = try await self.runAsync()
+        let parsedResult = parser.parse(result: result)
+        switch parsedResult {
+        case let .success(parsedElement):
+            return parsedElement
+        case let .failure(error):
+            throw error
+        }
     }
     
     public func results() -> AnyPublisher<Success, ParseError> {

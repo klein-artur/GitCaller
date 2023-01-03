@@ -9,9 +9,11 @@ import Foundation
 import Combine
 
 /// Representing a `git status` command result
-public struct GitStatus {
-    public let branch: Branch
+public struct GitStatus: ParseResult {
     
+    public var originalOutput: String
+    
+    public let branch: Branch
     public var stagedChanges: [Change] = []
     public var unstagedChanges: [Change] = []
     public var untrackedChanges: [Change] = []
@@ -105,6 +107,7 @@ public class StatusParser: GitParser, Parser {
         
         return .success(
             GitStatus(
+                originalOutput: result,
                 branch: Branch(
                     name: branchName,
                     isLocal: true,

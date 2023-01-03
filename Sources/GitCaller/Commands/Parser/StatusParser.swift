@@ -183,3 +183,24 @@ extension CommandStatus: Parsable {
         return StatusParser()
     }
 }
+
+/// Tests
+public extension GitStatus {
+    public static func getTestStatus() -> GitStatus {
+        GitStatus(
+            originalOutput: "",
+            branch: Branch(
+                name: "some_very_long/branch_name",
+                isLocal: true,
+                behind: 15,
+                ahead: 10,
+                upstream: Branch(name: "origin/some_very_very_very_very_very_long/branch_name", isLocal: false),
+                detached: false
+            ),
+            stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],
+            unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged)],
+            untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked)],
+            unmergedChanges: [Change(path: "some/unmerged/path.file", kind: .bothAdded, state: .unmerged)]
+        )
+    }
+}

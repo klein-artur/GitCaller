@@ -21,3 +21,5 @@ To run the command you have two possibilities:
  - `Git().init.run()` will return a `Combine` `Publisher` emitting the output. If multiple outputs happen the current output will be emitted.
  - `Git().init.runAsync()` will return a `async` function you can `await` to get the final output.
 
+
+As this is under development at the moment just a few commands and parameters are supported. Feel free to add more by a PullRequest.

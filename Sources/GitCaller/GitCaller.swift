@@ -13,26 +13,17 @@ private func runTask(command: String, onReceive: ((String) -> Void)?, onCompleti
     let outHandle = pipe.fileHandleForReading
 
     if let onReceive = onReceive, let onCompletion = onCompletion {
-        outHandle.waitForDataInBackgroundAndNotify()
-
-        var updateObserver: NSObjectProtocol!
-        updateObserver = NotificationCenter.default.addObserver(forName: NSNotification.Name.NSFileHandleDataAvailable, object: outHandle, queue: nil, using: { notification in
-            let data = outHandle.availableData
-            if !data.isEmpty {
+        pipe.fileHandleForReading.readabilityHandler = { handle in
+            let data = handle.availableData
+            if data.isEmpty {
+                handle.readabilityHandler = nil
+                onCompletion()
+            } else {
                 if let str = String(data: data, encoding: .utf8) {
                     onReceive(str)
                 }
-                outHandle.waitForDataInBackgroundAndNotify()
-            } else {
-                NotificationCenter.default.removeObserver(updateObserver!)
-                onCompletion()
             }
-        })
-        
-        var taskObserver : NSObjectProtocol!
-        taskObserver = NotificationCenter.default.addObserver(forName: Process.didTerminateNotification, object: task, queue: nil, using: { notification in
-            NotificationCenter.default.removeObserver(taskObserver!)
-        })
+        }
     }
 
     task.launch()

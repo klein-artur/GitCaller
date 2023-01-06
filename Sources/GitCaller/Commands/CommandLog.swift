@@ -8,7 +8,7 @@
 import Foundation
 
 /// Git command for `git log`
-public final class CommandLog: Command, CommitHashable, BranchNamable
+public final class CommandLog: Command, CommitHashable, BranchNamable, NoColorable, Decoratable
 {
     public override var command: String {
         "log"

@@ -24,4 +24,17 @@ To run the command you have two possibilities:
 
 ## Parsed Results
 
+This lib will also give you complete objects holding data.
+
+There is a protocol `Repository`. The default implementation is `GitRepo`
+
+This repo implementation already has a few methods to get parsed objects. For example:
+
+`GitRepo.standard.clone(url: String)` will clone a repo from the given URL.
+`GitRepo.standard.log(branchName: String)` will give you a `LogResult` holding commits, plus information how to draw a git path. 
+
+And more.
+
+## Woha!!! Slow Slow!
+
 As this is under development at the moment just a few commands and parameters are supported. Feel free to add more by a PullRequest.

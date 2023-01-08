@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--quiet` parameter.
-public protocol Quietable: Parametrable {
+public protocol HasQuietParameter: Parametrable {
     func quiet() -> Self
 }
 
@@ -16,7 +16,7 @@ internal class Quiet: Parameter {
     var command: String = "--quiet"
 }
 
-extension Quietable {
+extension HasQuietParameter {
     public func quiet() -> Self {
         return self.withAddedParameter(Quiet())
     }

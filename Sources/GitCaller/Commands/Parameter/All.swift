@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--all` parameter.
-public protocol Allable: Parametrable {
+public protocol HasAllParameter: Parametrable {
     func all() -> Self
 }
 
@@ -16,7 +16,7 @@ internal class All: Parameter {
     var command: String = "--all"
 }
 
-extension Allable {
+extension HasAllParameter {
     public func all() -> Self {
         return self.withAddedParameter(All())
     }

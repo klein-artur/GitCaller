@@ -8,8 +8,8 @@
 import Foundation
 
 public final class CommandAdd: Command,
-                        Allable,
-                        Pathable
+                        HasAllParameter,
+                        HasPathParameter
 {
     public override var command: String {
         "add"

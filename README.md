@@ -2,7 +2,7 @@
 
 This is a swift package currently in development. It is meant as a git bridge for swift, using git through shell, returning the result. Do not consider this as done. 
 
-It is used by the project [GitBuddy](https://github.com/klein-artur/GitBuddy) in combination with [GitParser](https://github.com/klein-artur/GitParser). 
+It is used by the project [GitBuddy](https://github.com/klein-artur/GitBuddy). 
 
 ## How it works.
 
@@ -21,5 +21,7 @@ To run the command you have two possibilities:
  - `Git().init.run()` will return a `Combine` `Publisher` emitting the output. If multiple outputs happen the current output will be emitted.
  - `Git().init.runAsync()` will return a `async` function you can `await` to get the final output.
 
+
+## Parsed Results
 
 As this is under development at the moment just a few commands and parameters are supported. Feel free to add more by a PullRequest.

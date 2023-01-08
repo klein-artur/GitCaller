@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a branch name parameter.
-public protocol BranchNamable: Parametrable {
+public protocol HasBranchnameParameter: Parametrable {
     func branchName(_ branchName: String) -> Self
 }
 
@@ -20,7 +20,7 @@ internal class BranchName: Parameter {
     }
 }
 
-extension BranchNamable {
+extension HasBranchnameParameter {
     public func branchName(_ branchName: String) -> Self {
         return self.withAddedParameter(BranchName(branchName))
     }

@@ -8,9 +8,9 @@
 import Foundation
 
 final class CommandCommit: Command,
-                           Allable,
-                           Messageable,
-                           Pathable
+                           HasAllParameter,
+                           HasMessageParameter,
+                           HasPathParameter
 {
     override var command: String {
         "commit"

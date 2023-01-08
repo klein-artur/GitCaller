@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a commit hash parameter.
-public protocol CommitHashable: Parametrable {
+public protocol HasCommitHashParameter: Parametrable {
     func commitHash(_ hash: String) -> Self
 }
 
@@ -20,7 +20,7 @@ internal class CommitHash: Parameter {
     }
 }
 
-extension CommitHashable {
+extension HasCommitHashParameter {
     public func commitHash(_ hash: String) -> Self {
         return self.withAddedParameter(CommitHash(hash))
     }

@@ -88,6 +88,7 @@ struct GitCaller {
         return runTask(command: command, onReceive: nil, onCompletion: nil)
     }
     
+    
 }
 
 extension CommandSpec {

@@ -9,8 +9,8 @@ import Foundation
 
 /// Git command for git init
 public final class CommandInit: Command,
-                            Quietable,
-                            InitialBranchNamable
+                            HasQuietParameter,
+                            HasInitialBranchNameParameter
 {
     public override var command: String {
         "init"

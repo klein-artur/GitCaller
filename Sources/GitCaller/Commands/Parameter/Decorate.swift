@@ -14,7 +14,7 @@ public enum DecorateValue: String {
 }
 
 /// Makes a command able to use the `--decorate=<type>` parameter.
-public protocol Decoratable: Parametrable {
+public protocol HasDecorateParameter: Parametrable {
     func decorate(_ value: DecorateValue) -> Self
 }
 
@@ -30,7 +30,7 @@ internal class Decorate: Parameter {
     }
 }
 
-extension Decoratable {
+extension HasDecorateParameter {
     public func decorate(_ value: DecorateValue = .auto) -> Self {
         return self.withAddedParameter(Decorate(value: value))
     }

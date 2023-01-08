@@ -15,6 +15,13 @@ public class Branch {
     public let upstream: Branch?
     public let detached: Bool
     
+    public var cleanName: String {
+        guard let lastElement = name.split(separator: "/").last else {
+            return ""
+        }
+        return String(lastElement)
+    }
+    
     public var upToDate: Bool {
         return behind == 0 && ahead == 0
     }
@@ -36,25 +43,28 @@ public class Branch {
     }
 }
 
-enum BranchTreeItemType {
+public enum BranchTreeItemType {
     case branch(Branch)
     case directory(String)
 }
 
 public class BranchTreeItem {
-    let type: BranchTreeItemType
-    var children: [BranchTreeItem]
+    public let type: BranchTreeItemType
+    public let fullPath: String
+    public var children: [BranchTreeItem]
     
-    weak var parent: BranchTreeItem?
+    public weak var parent: BranchTreeItem?
     
     init(
         type: BranchTreeItemType,
         children: [BranchTreeItem],
-        parent: BranchTreeItem? = nil
+        parent: BranchTreeItem? = nil,
+        fullPath: String
     ) {
         self.type = type
         self.children = children
         self.parent = parent
+        self.fullPath = fullPath
     }
 }
 
@@ -66,12 +76,14 @@ public extension BranchTreeItem {
 
 extension Array where Element == Branch {
     func parseIntoTree() -> BranchTreeItem {
-        let root = BranchTreeItem(type: .directory("root"), children: [])
+        let root = BranchTreeItem(type: .directory("root"), children: [], fullPath: "")
         var currentParent = root
         for branch in self {
+            var currentPath = [String]()
             let pathComponents = branch.name.split(separator: "/")
             for component in pathComponents {
                 let componentName = String(component)
+                currentPath.append(componentName)
                 if let matchingChild = currentParent.children.first(where: {
                     if case let .directory(name) = $0.type, name == componentName {
                         return true
@@ -80,10 +92,10 @@ extension Array where Element == Branch {
                 }) {
                     currentParent = matchingChild
                 } else if branch.name.hasSuffix(componentName) {
-                    let newBranch = BranchTreeItem(type: .branch(branch), children: [], parent: currentParent)
+                    let newBranch = BranchTreeItem(type: .branch(branch), children: [], parent: currentParent, fullPath: branch.name)
                     currentParent.children.append(newBranch)
                 } else {
-                    let newDirectory = BranchTreeItem(type: .directory(componentName), children: [], parent: currentParent)
+                    let newDirectory = BranchTreeItem(type: .directory(componentName), children: [], parent: currentParent, fullPath: currentPath.joined(separator: "/"))
                     currentParent.children.append(newDirectory)
                     currentParent = newDirectory
                 }
@@ -95,4 +107,13 @@ extension Array where Element == Branch {
     }
 }
 
+public extension BranchTreeItem {
+    var flatten: [BranchTreeItem] {
+        self.children.flatMap { item in
+            var result = [item]
+            result.append(contentsOf: item.flatten)
+            return result
+        }
+    }
+}
 

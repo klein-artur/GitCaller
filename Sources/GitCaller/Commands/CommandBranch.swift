@@ -8,7 +8,7 @@
 import Foundation
 
 /// Git command for `git branch`
-public final class CommandBranch: Command, HasAllParameter, HasRemotesParameter
+public final class CommandBranch: Command, HasAllParameter, HasRemotesParameter, HasVerboseParameter
 {
     
     public override var command: String {

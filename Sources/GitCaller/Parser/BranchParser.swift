@@ -25,13 +25,25 @@ public class BranchResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let branches = result.find(rgx: #"(?:(\*)|\s)\s\(?([^\s\n]+).*(?:\n|\Z)"#)
-            .map { $0[2] ?? "" }
-            .filter { !$0.isEmpty && !$0.contains("HEAD ->") }
-            .map { name in
+        let branches = result.find(rgx: #"(?:(\*)|\s)\s\(?([^\s\n]+)(?:.*\))?(?:\s*[a-fA-F0-9]{7,12}\s(?:\[(?:ahead\s([0-9]+))?(?:,\s)?(?:behind\s([0-9]+))?\].*)?.*)?(?:\n|\Z)"#)
+            .map { result in
+                
+                var name = result[2]!
+                
+                var ahead = 0
+                if let aheadString = result[3], let aheadInt = Int(aheadString) {
+                    ahead = aheadInt
+                }
+                var behind = 0
+                if let behindString = result[4], let behindInt = Int(behindString) {
+                    behind = behindInt
+                }
+                
                 return Branch(
                     name: name,
                     isLocal: name.hasPrefix("remotes/"),
+                    behind: behind,
+                    ahead: ahead,
                     detached: name == "HEAD"
                 )
             }

@@ -15,8 +15,10 @@ final class ParserTestBranches: XCTestCase {
         // given
         let input = """
         * (HEAD detached at fadce24)
-          Savebranch
-          main
+          Savebranch                             8667982e1 fixed issue
+          main                                   8667982e1 [ahead 2] fixed issue
+          main                                   8667982e1 [behind 2] fixed issue
+          main                                   8667982e1 [ahead 3, behind 2] fixed issue
           remotes/origin/HEAD -> origin/main
           remotes/origin/main
         """
@@ -26,10 +28,15 @@ final class ParserTestBranches: XCTestCase {
         let result = try! sut.parse(result: input).get()
         
         // then
-        XCTAssertEqual(result.branches?.count, 5)
+        XCTAssertEqual(result.branches?.count, 6)
         XCTAssertEqual(result.branches?[0].name, "HEAD")
         XCTAssertTrue(result.branches?[0].detached == true)
-        XCTAssertFalse(result.branches?[3].isLocal == false)
+        XCTAssertEqual(result.branches?[2].name, "main")
+        XCTAssertEqual(result.branches?[2].ahead, 2)
+        XCTAssertEqual(result.branches?[3].behind, 2)
+        XCTAssertEqual(result.branches?[4].ahead, 3)
+        XCTAssertEqual(result.branches?[4].behind, 2)
+        XCTAssertFalse(result.branches?[5].isLocal == false)
     }
 
 }

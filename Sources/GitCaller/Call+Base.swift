@@ -42,7 +42,7 @@ extension GitRepo: Repository {
     }
     
     public func getBranches() async throws -> BranchResult {
-        try await Git().branch.all().finalResult()
+        try await Git().branch.all().verbose().finalResult()
     }
     
 }

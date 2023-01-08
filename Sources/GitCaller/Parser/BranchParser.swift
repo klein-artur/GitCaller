@@ -10,6 +10,10 @@ import Foundation
 public struct BranchResult: ParseResult {
     public var originalOutput: String
     public var branches: [Branch]?
+    
+    public var tree: BranchTreeItem? {
+        return branches?.parseIntoTree()
+    }
 }
 
 public class BranchResultParser: GitParser, Parser {
@@ -28,7 +32,7 @@ public class BranchResultParser: GitParser, Parser {
         let branches = result.find(rgx: #"(?:(\*)|\s)\s\(?([^\s\n]+)(?:.*\))?(?:\s*[a-fA-F0-9]{7,12}\s(?:\[(?:ahead\s([0-9]+))?(?:,\s)?(?:behind\s([0-9]+))?\].*)?.*)?(?:\n|\Z)"#)
             .map { result in
                 
-                var name = result[2]!
+                let name = result[2]!
                 
                 var ahead = 0
                 if let aheadString = result[3], let aheadInt = Int(aheadString) {
@@ -52,6 +56,8 @@ public class BranchResultParser: GitParser, Parser {
             BranchResult(originalOutput: result, branches: branches)
         )
     }
+    
+    
 }
 
 extension CommandBranch: Parsable {

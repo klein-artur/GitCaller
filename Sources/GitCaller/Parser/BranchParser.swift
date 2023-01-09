@@ -10,6 +10,7 @@ import Foundation
 public struct BranchResult: ParseResult {
     public var originalOutput: String
     public var branches: [Branch]?
+    public var deletionSuccessfull: Bool
     
     public var tree: BranchTreeItem? {
         return branches?.parseIntoTree()
@@ -45,15 +46,20 @@ public class BranchResultParser: GitParser, Parser {
                 
                 return Branch(
                     name: name,
-                    isLocal: name.hasPrefix("remotes/"),
+                    isCurrent: !(result[1]?.isEmpty ?? true),
+                    isLocal: !name.hasPrefix("remotes/"),
                     behind: behind,
                     ahead: ahead,
                     detached: name == "HEAD"
                 )
             }
         
+        if branches.isEmpty && result.contains(rgx: #"Deleted branch .*"#) {
+            return .success(Success(originalOutput: result, deletionSuccessfull: true))
+        }
+        
         return .success(
-            BranchResult(originalOutput: result, branches: branches)
+            BranchResult(originalOutput: result, branches: branches, deletionSuccessfull: false)
         )
     }
     

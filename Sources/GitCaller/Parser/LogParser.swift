@@ -538,7 +538,7 @@ public class LogResultParser: GitParser, Parser {
         }
         
         if !result.contains("<<<----mCommitm---->>>") {
-            return .failure(ParseError.wrongLogFormat)
+            return .failure(ParseError(type: .wrongLogFormat, rawOutput: result))
         }
         
         do {
@@ -548,7 +548,7 @@ public class LogResultParser: GitParser, Parser {
             var commitsLong = [String: Commit]()
             
             for match in matches {
-                let commit = try parseCommit(part: match)
+                let commit = try parseCommit(part: match, result: result)
                 commits.append(commit)
                 commitsLong[commit.objectHash] = commit
             }
@@ -569,30 +569,30 @@ public class LogResultParser: GitParser, Parser {
         }
     }
     
-    private func parseCommit(part: RgxResult) throws -> Commit {
+    private func parseCommit(part: RgxResult, result: String) throws -> Commit {
         
         guard let shortHash = part[1] else {
-            throw ParseError.commitWithoutCommmitHash
+            throw ParseError(type: .commitWithoutCommmitHash, rawOutput: result)
         }
         
         guard let commitHash = part[3] else {
-            throw ParseError.commitWithoutCommmitHash
+            throw ParseError(type: .commitWithoutCommmitHash, rawOutput: result)
         }
         
         guard let authorName = part[5], let authorEmail = part[6] else {
-            throw ParseError.commitWithoutAuthor
+            throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
         }
         
         guard let authorDate = part[7]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
-            throw ParseError.commitWithoutDate
+            throw ParseError(type: .commitWithoutDate, rawOutput: result)
         }
         
         guard let committerName = part[8], let committerEmail = part[9] else {
-            throw ParseError.commitWithoutAuthor
+            throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
         }
         
         guard let committerDate = part[10]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
-            throw ParseError.commitWithoutDate
+            throw ParseError(type: .commitWithoutDate, rawOutput: result)
         }
         
         let (branches, tags) = parseBranchesAndTags(in: part[2] ?? "")

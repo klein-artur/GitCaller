@@ -28,15 +28,31 @@ final class ParserTestBranches: XCTestCase {
         let result = try! sut.parse(result: input).get()
         
         // then
+        
         XCTAssertEqual(result.branches?.count, 6)
         XCTAssertEqual(result.branches?[0].name, "HEAD")
         XCTAssertTrue(result.branches?[0].detached == true)
         XCTAssertEqual(result.branches?[2].name, "main")
+        XCTAssertEqual(result.branches?[2].isLocal, true)
         XCTAssertEqual(result.branches?[2].ahead, 2)
         XCTAssertEqual(result.branches?[3].behind, 2)
         XCTAssertEqual(result.branches?[4].ahead, 3)
         XCTAssertEqual(result.branches?[4].behind, 2)
-        XCTAssertFalse(result.branches?[5].isLocal == false)
+        XCTAssertTrue(result.branches?[5].isLocal == false)
+    }
+    
+    func testParseDeletion() throws {
+        // given
+        let input = """
+        Deleted branch fix/some (was cdc58a5).
+        """
+        let sut = BranchResultParser()
+        
+        // when
+        let result = try! sut.parse(result: input).get()
+        
+        // then
+        XCTAssertTrue(result.deletionSuccessfull)
     }
 
 }

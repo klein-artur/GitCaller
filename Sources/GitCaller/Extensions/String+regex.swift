@@ -41,6 +41,10 @@ extension String {
         
         return mutatingString as String
     }
+    
+    func contains(rgx pattern: String, options: NSRegularExpression.MatchingOptions = []) -> Bool {
+        !self.find(rgx: pattern, options: options).isEmpty
+    }
 }
 
 extension RgxResult {

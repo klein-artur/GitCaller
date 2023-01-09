@@ -85,7 +85,7 @@ public class StatusParser: GitParser, Parser {
         }
         
         guard let branchName = branchName else {
-            return .failure(.noBranchNameFound)
+            return .failure(ParseError(type: .noBranchNameFound, rawOutput: result))
         }
         
         var behind = 0
@@ -106,7 +106,7 @@ public class StatusParser: GitParser, Parser {
         
         var upstream: Branch?
         if let upstreamName = result.find(rgx: "(?:with|behind|and|of) '(.*)'").first?[1] {
-            upstream = Branch(name: upstreamName, isLocal: false)
+            upstream = Branch(name: upstreamName, isCurrent: false, isLocal: false)
         }
         
         return .success(
@@ -114,6 +114,7 @@ public class StatusParser: GitParser, Parser {
                 originalOutput: result,
                 branch: Branch(
                     name: branchName,
+                    isCurrent: true,
                     isLocal: true,
                     behind: behind,
                     ahead: ahead,
@@ -186,10 +187,11 @@ public extension StatusResult {
             originalOutput: "",
             branch: Branch(
                 name: "some_very_long/branch_name",
+                isCurrent: true,
                 isLocal: true,
                 behind: 15,
                 ahead: 10,
-                upstream: Branch(name: "origin/some_very_very_very_very_very_long/branch_name", isLocal: false),
+                upstream: Branch(name: "origin/some_very_very_very_very_very_long/branch_name", isCurrent: false, isLocal: false),
                 detached: false
             ),
             stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],

@@ -8,29 +8,41 @@
 import Foundation
 import Combine
 
-/// A global parsing error
-public enum ParseError: Error {
+/// Parsing error type
+public struct ParseErrorType: RawRepresentable, Equatable {
+    
+    public var rawValue: String
+    
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
     
     /// There is an issue parsing.
-    case issueParsing
+    public static let issueParsing = ParseErrorType(rawValue: "issueParsing")
     
     /// Branch name could not be parsed.
-    case noBranchNameFound
+    public static let noBranchNameFound = ParseErrorType(rawValue: "noBranchNameFound")
     
     /// The current directory is not a repository
-    case notARepository
+    public static let notARepository = ParseErrorType(rawValue: "notARepository")
     
     /// Trying to parse a commit without a hash
-    case commitWithoutCommmitHash
+    public static let commitWithoutCommmitHash = ParseErrorType(rawValue: "commitWithoutCommmitHash")
     
     /// Trying to parse a commit without author
-    case commitWithoutAuthor
+    public static let commitWithoutAuthor = ParseErrorType(rawValue: "commitWithoutAuthor")
     
     /// Trying to parse a commit without date
-    case commitWithoutDate
+    public static let commitWithoutDate = ParseErrorType(rawValue: "commitWithoutDate")
     
     /// The log has wrong format. Please use the correct pretty format.
-    case wrongLogFormat
+    public static let wrongLogFormat = ParseErrorType(rawValue: "wrongLogFormat")
+}
+
+/// A parse error
+public struct ParseError: Error {
+    public let type: ParseErrorType
+    public let rawOutput: String
 }
 
 /// A protocol all parse results have to conform to.
@@ -72,7 +84,7 @@ public protocol Parser {
 public class GitParser {
     func parseForIssues(result: String) -> ParseError? {
         if result.hasPrefix("fatal: not a git repository (or any of the parent directories):") {
-            return ParseError.notARepository
+            return ParseError(type: .notARepository, rawOutput: result)
         }
         return nil
     }

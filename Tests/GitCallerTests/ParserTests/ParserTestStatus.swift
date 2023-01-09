@@ -50,7 +50,7 @@ final class ParserTestStatus: XCTestCase {
         
         // then
         XCTAssertThrowsError(try sut.parse(result: input).get(), "Does not properly throw.") {
-            XCTAssertEqual($0 as? ParseError, ParseError.notARepository)
+            XCTAssertEqual(($0 as? ParseError)?.type, .notARepository)
         }
     }
     

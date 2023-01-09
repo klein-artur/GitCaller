@@ -9,6 +9,7 @@ import Foundation
 
 public class Branch {
     public let name: String
+    public let isCurrent: Bool
     public let isLocal: Bool
     public let behind: Int
     public let ahead: Int
@@ -28,6 +29,7 @@ public class Branch {
     
     init(
         name: String,
+        isCurrent: Bool,
         isLocal: Bool = true,
         behind: Int = 0,
         ahead: Int = 0,
@@ -35,6 +37,7 @@ public class Branch {
         detached: Bool = false
     ) {
         self.name = name
+        self.isCurrent = isCurrent
         self.isLocal = isLocal
         self.behind = behind
         self.ahead = ahead

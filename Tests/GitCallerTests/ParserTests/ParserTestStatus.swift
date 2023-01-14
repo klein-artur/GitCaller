@@ -232,5 +232,30 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertTrue(status.branch.detached)
         XCTAssertEqual(status.status, .clean)
     }
+    
+    
+    func testJustTwoChanges() throws {
+        //given
+        let input = """
+        On branch feature/some-branch
+        Your branch is up to date with 'origin/some-branch'.
+
+        Changes not staged for commit:
+          (use "git add <file>..." to update what will be committed)
+          (use "git restore <file>..." to discard changes in working directory)
+            modified:   Directory/SomeFile.plist
+            modified:   DirectoryTest/Some/File/ThatChanged.swift
+
+        no changes added to commit (use "git add" and/or "git commit -a")
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let status = try result.get()
+        
+        // then
+        XCTAssertEqual(status.unstagedChanges.count, 2)
+        XCTAssertEqual(status.status, .unclean)
+    }
 
 }

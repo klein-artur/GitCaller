@@ -49,6 +49,13 @@ public class Branch {
 public enum BranchTreeItemType {
     case branch(Branch)
     case directory(String)
+    
+    public var isRemoteDir: Bool {
+        if case let .directory(name) = self, name == "remotes" {
+            return true
+        }
+        return false
+    }
 }
 
 public class BranchTreeItem {

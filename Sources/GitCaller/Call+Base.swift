@@ -47,7 +47,7 @@ extension GitRepo: Repository {
     }
     
     public func getBranches() async throws -> BranchResult {
-        try await Git().branch.all().verbose().finalResult()
+        try await Git().branch.all().verbose().verbose().finalResult()
     }
     
     public func checkout(branch: Branch) async throws -> CheckoutResult {

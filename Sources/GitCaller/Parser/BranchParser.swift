@@ -30,18 +30,23 @@ public class BranchResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let branches = result.find(rgx: #"(?:(\*)|\s)\s\(?([^\s\n]+)(?:.*\))?(?:\s*[a-fA-F0-9]{7,12}\s(?:\[(?:ahead\s([0-9]+))?(?:,\s)?(?:behind\s([0-9]+))?\].*)?.*)?(?:\n|\Z)"#)
+        let branches = result.find(rgx: #"(?:(\*)|\s)\s\(?([^\s\n]+)(?:.*\))?(?:\s*[a-fA-F0-9]{7,12}\s(?:\[(?:(.*?)(?::\s)?)?(?:ahead\s([0-9]+))?(?:,\s)?(?:behind\s([0-9]+))?\].*)?.*)?(?:\n|\Z)"#)
             .map { result in
                 
                 let name = result[2]!
                 
                 var ahead = 0
-                if let aheadString = result[3], let aheadInt = Int(aheadString) {
+                if let aheadString = result[4], let aheadInt = Int(aheadString) {
                     ahead = aheadInt
                 }
                 var behind = 0
-                if let behindString = result[4], let behindInt = Int(behindString) {
+                if let behindString = result[5], let behindInt = Int(behindString) {
                     behind = behindInt
+                }
+                
+                var upstream: Branch? = nil
+                if let upstreamName = result[3] {
+                    upstream = Branch(name: upstreamName, isCurrent: false, isLocal: false)
                 }
                 
                 return Branch(
@@ -50,6 +55,7 @@ public class BranchResultParser: GitParser, Parser {
                     isLocal: !name.hasPrefix("remotes/"),
                     behind: behind,
                     ahead: ahead,
+                    upstream: upstream,
                     detached: name == "HEAD"
                 )
             }

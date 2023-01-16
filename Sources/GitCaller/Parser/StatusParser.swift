@@ -20,10 +20,6 @@ public struct StatusResult: ParseResult {
     public var unmergedChanges: [Change] = []
     
     public var status: Status {
-        if !branch.upToDate {
-            return .unclean
-        }
-        
         if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty || !unmergedChanges.isEmpty {
             return .unclean
         }

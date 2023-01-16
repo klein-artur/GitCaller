@@ -6,14 +6,13 @@
 //
 
 import Foundation
+import SwiftUI
 
 public class GitRepo { }
 
 extension GitRepo: Repository {
     
-    public static var standard: GitRepo {
-        GitRepo()
-    }
+    public static let standard: GitRepo = GitRepo()
     
     public func clone(url: String) async throws -> CloneResult {
         try await Git().clone(url: url).finalResult()
@@ -51,14 +50,18 @@ extension GitRepo: Repository {
     }
     
     public func checkout(branch: Branch) async throws -> CheckoutResult {
+        let result: CheckoutResult
         if branch.isLocal {
-            return try await Git().checkout.branchName(branch.name).finalResult()
+            result = try await Git().checkout.branchName(branch.name).finalResult()
         } else {
-            return try await Git().checkout.track().branchName(branch.name).finalResult()
+            result = try await Git().checkout.track().branchName(branch.name).finalResult()
         }
+        objectWillChange.send()
+        return result
     }
     
     public func delete(branch: Branch, force: Bool = false) async throws -> BranchResult {
+        let result: BranchResult
         if branch.isLocal {
             var command = Git().branch.branchName(branch.name)
             if force {
@@ -66,37 +69,48 @@ extension GitRepo: Repository {
             } else {
                 command = command.d()
             }
-            return try await command.finalResult()
+            result = try await command.finalResult()
         } else {
             
             // TODO: Delete remotes.
-            return try await Git().branch.finalResult()
+            result = try await Git().branch.finalResult()
         }
+        objectWillChange.send()
+        return result
     }
     
     public func stage(file path: String?) async throws -> AddResult {
+        let result: AddResult
         if let path = path {
-            return try await Git().add.path(path).finalResult()
+            result = try await Git().add.path(path).finalResult()
         } else {
-            return try await Git().add.all().finalResult()
+            result = try await Git().add.all().finalResult()
         }
+        objectWillChange.send()
+        return result
     }
     
     public func unstage(file path: String) async throws -> RestoreResult {
-        return try await Git().restore.staged().path(path).finalResult()
+        let result =  try await Git().restore.staged().path(path).finalResult()
+        objectWillChange.send()
+        return result
     }
     
     public func revert(unstagedFile path: String) async throws -> RestoreResult {
-        return try await Git().restore.path(path).finalResult()
+        let result = try await Git().restore.path(path).finalResult()
+        objectWillChange.send()
+        return result
     }
     
     public func commit(message: String) async throws -> CommitResult {
-        return try await Git().commit.message(message).finalResult()
+        let result = try await Git().commit.message(message).finalResult()
+        objectWillChange.send()
+        return result
     }
 }
 
 /// Baseclass for GitCaller. Enables mockability
-public protocol Repository {
+public protocol Repository: ObservableObject {
     
     /// Clones the project behind URL
     func clone(url: String) async throws -> CloneResult

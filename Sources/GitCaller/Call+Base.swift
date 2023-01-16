@@ -86,6 +86,10 @@ extension GitRepo: Repository {
         return try await Git().restore.staged().path(path).finalResult()
     }
     
+    public func revert(unstagedFile path: String) async throws -> RestoreResult {
+        return try await Git().restore.path(path).finalResult()
+    }
+    
     public func commit(message: String) async throws -> CommitResult {
         return try await Git().commit.message(message).finalResult()
     }
@@ -123,6 +127,9 @@ public protocol Repository {
     
     /// unstages a given file, if no path given adds all.
     func unstage(file path: String) async throws -> RestoreResult
+    
+    /// reverts unstaged files.
+    func revert(unstagedFile path: String) async throws -> RestoreResult
     
     /// Commits the currently staged files with the given message.
     func commit(message: String) async throws -> CommitResult

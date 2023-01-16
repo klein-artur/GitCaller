@@ -257,5 +257,42 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unstagedChanges.count, 2)
         XCTAssertEqual(status.status, .unclean)
     }
+    
+    func testJustRealChangesetShouldWork() throws {
+        //given
+        let input = """
+        On branch main
+        Your branch is up to date with 'origin/main'.
+
+        Changes not staged for commit:
+          (use "git add <file>..." to update what will be committed)
+          (use "git restore <file>..." to discard changes in working directory)
+            modified:   Sources/GitCaller/Call+Base.swift
+            modified:   Sources/GitCaller/Parser.swift
+            modified:   Sources/GitCaller/Parser/StatusParser.swift
+
+        Untracked files:
+          (use "git add <file>..." to include in what will be committed)
+            Sources/GitCaller/Commands/CommandRestore.swift
+            Sources/GitCaller/Commands/Parameter/Staged.swift
+            Sources/GitCaller/Parser/AddParser.swift
+            Sources/GitCaller/Parser/CommitParser.swift
+            Sources/GitCaller/Parser/RestoreParser.swift
+            Tests/GitCallerTests/ParserTests/ParserTestAdd.swift
+            Tests/GitCallerTests/ParserTests/ParserTestCommit.swift
+            Tests/GitCallerTests/ParserTests/ParserTestRestore.swift
+
+        no changes added to commit (use "git add" and/or "git commit -a")
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let status = try result.get()
+        
+        // then
+        XCTAssertEqual(status.unstagedChanges.count, 3)
+        XCTAssertEqual(status.untrackedChanges.count, 8)
+        XCTAssertEqual(status.status, .unclean)
+    }
 
 }

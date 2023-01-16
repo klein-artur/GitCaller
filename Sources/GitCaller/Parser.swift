@@ -37,6 +37,9 @@ public struct ParseErrorType: RawRepresentable, Equatable {
     
     /// The log has wrong format. Please use the correct pretty format.
     public static let wrongLogFormat = ParseErrorType(rawValue: "wrongLogFormat")
+    
+    /// The log has wrong format. Please use the correct pretty format.
+    public static let fileNotExists = ParseErrorType(rawValue: "fileNotExists")
 }
 
 /// A parse error

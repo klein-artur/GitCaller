@@ -31,6 +31,11 @@ public struct StatusResult: ParseResult {
         return .clean
     }
     
+    /// A combined list of unstaged, unmerged and untracked changes.
+    public var combinedUnstagedChanges: [Change] {
+        unstagedChanges + unmergedChanges + untrackedChanges
+    }
+    
     /// A status the git repo can have.
     public enum Status {
         
@@ -154,14 +159,16 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getUntrackedFiles(in result: String) -> [Change] {
-        guard let untrackedGroup = result.find(rgx: #"Untracked files:\n\s+\(use "git add <file>\.\.\." to include in what will be committed\)\n([\s\S]++)"#).first?[1] else {
+        guard let untrackedGroup = result.find(rgx: #"Untracked files:\n\s+\(use "git add <file>\.\.\." to include in what will be committed\)\n([\s\S]+)"#).first?[1] else {
             return []
         }
         
-        return untrackedGroup.find(rgx: #"\s+([^(\n")]*)"#)
+        return untrackedGroup.find(rgx: #"\s+([^(\n")]+)(?:\n|\Z)"#)
+            .map { $0[1]! }
+            .filter { !$0.isEmpty }
             .map { foundChange in
                 Change(
-                    path: foundChange[1]!,
+                    path: foundChange,
                     kind: .newFile,
                     state: .untracked
                 )

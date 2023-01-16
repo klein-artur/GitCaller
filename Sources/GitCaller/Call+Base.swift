@@ -73,6 +73,22 @@ extension GitRepo: Repository {
             return try await Git().branch.finalResult()
         }
     }
+    
+    public func stage(file path: String?) async throws -> AddResult {
+        if let path = path {
+            return try await Git().add.path(path).finalResult()
+        } else {
+            return try await Git().add.all().finalResult()
+        }
+    }
+    
+    public func unstage(file path: String) async throws -> RestoreResult {
+        return try await Git().restore.staged().path(path).finalResult()
+    }
+    
+    public func commit(message: String) async throws -> CommitResult {
+        return try await Git().commit.message(message).finalResult()
+    }
 }
 
 /// Baseclass for GitCaller. Enables mockability
@@ -101,4 +117,13 @@ public protocol Repository {
     
     /// Deletes the given branch.
     func delete(branch: Branch, force: Bool) async throws -> BranchResult
+    
+    /// Adds a given file, if no path given adds all.
+    func stage(file path: String?) async throws -> AddResult
+    
+    /// unstages a given file, if no path given adds all.
+    func unstage(file path: String) async throws -> RestoreResult
+    
+    /// Commits the currently staged files with the given message.
+    func commit(message: String) async throws -> CommitResult
 }

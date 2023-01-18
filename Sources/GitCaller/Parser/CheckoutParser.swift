@@ -38,7 +38,7 @@ public class CheckoutResultParser: GitParser, Parser {
         
         let checkoutResult: CheckoutResult
         
-        if result.contains(rgx: "Switched to branch .*") {
+        if result.contains(rgx: #"Switched to (?:a new )?branch .*"#) {
             checkoutResult = CheckoutResult(originalOutput: result, didChange: true)
         } else if result.contains(rgx: "Already on .*") {
             checkoutResult = CheckoutResult(originalOutput: result, didChange: false)

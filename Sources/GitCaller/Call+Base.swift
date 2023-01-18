@@ -144,6 +144,12 @@ extension GitRepo: Repository {
         }
         return pushResult
     }
+    
+    public func newBranchAndCheckout(name: String) async throws -> CheckoutResult {
+        let result = try await Git().checkout.b().branchName(name).finalResult()
+        objectWillChange.send()
+        return result
+    }
 
 }
 
@@ -196,4 +202,7 @@ public protocol Repository: ObservableObject {
     /// Pushes the current branch.
     ///  - force: `true` if the pull should be forced.
     func push(force: Bool) async throws -> PushResult
+    
+    /// Creates a new branch and checks it out.
+    func newBranchAndCheckout(name: String) async throws -> CheckoutResult
 }

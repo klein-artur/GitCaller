@@ -62,6 +62,21 @@ final class ParserTestCheckout: XCTestCase {
         }
     }
     
+    func testSuccessNew() throws {
+        // given
+        let input = """
+        Switched to a new branch 'other'
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { checkout in
+            XCTAssertTrue(checkout.didChange)
+        }
+    }
+    
     func testSuccessWithoutChange() throws {
         // given
         let input = """

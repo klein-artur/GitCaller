@@ -132,9 +132,15 @@ extension GitRepo: Repository {
         return pullResult
     }
     
-    public func push(force: Bool) async throws -> PushResult {
+    public func push(force: Bool, createUpstream: Bool = false, remoteName: String? = nil, newName: String? = nil) async throws -> PushResult {
         let pushResult: PushResult
-        if force {
+        if let newName = newName, let remoteName = remoteName {
+            if createUpstream {
+                pushResult = try await Git().push.setUpstream().remoteName(remoteName).branchName(newName).finalResult()
+            } else {
+                pushResult = try await Git().push.remoteName(remoteName).branchName(newName).finalResult()
+            }
+        } else if force {
             pushResult = try await Git().push.force().finalResult()
         } else {
             pushResult = try await Git().push.finalResult()
@@ -201,8 +207,14 @@ public protocol Repository: ObservableObject {
     
     /// Pushes the current branch.
     ///  - force: `true` if the pull should be forced.
-    func push(force: Bool) async throws -> PushResult
+    func push(force: Bool, createUpstream: Bool, remoteName: String?, newName: String?) async throws -> PushResult
     
     /// Creates a new branch and checks it out.
     func newBranchAndCheckout(name: String) async throws -> CheckoutResult
+}
+
+public extension Repository {
+    func push(force: Bool, createUpstream: Bool = false, remoteName: String? = nil, newName: String? = nil) async throws -> PushResult {
+        return try await push(force: force, createUpstream: createUpstream, remoteName: remoteName, newName: newName)
+    }
 }

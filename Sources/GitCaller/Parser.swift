@@ -127,3 +127,11 @@ extension Parsable where Success == ParserType.Success {
         return doParsing(on: self.run())
     }
 }
+
+extension Parsable where Success == EmptyResult {
+    
+    public func ignoreResult() async throws {
+        _ = try await finalResult()
+    }
+    
+}

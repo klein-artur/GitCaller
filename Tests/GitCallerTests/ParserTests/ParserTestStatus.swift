@@ -76,7 +76,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertNotNil(status.branch.upstream)
         XCTAssertEqual(status.branch.upstream?.name, "origin/main")
         XCTAssertFalse(status.branch.upstream?.isLocal ?? true)
-        XCTAssertEqual(status.status, .unclean)
+        XCTAssertEqual(status.status, .clean)
     }
     
     func testNothingToComitDiverged() throws {
@@ -103,7 +103,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertNotNil(status.branch.upstream)
         XCTAssertEqual(status.branch.upstream?.name, "origin/main")
         XCTAssertFalse(status.branch.upstream?.isLocal ?? true)
-        XCTAssertEqual(status.status, .unclean)
+        XCTAssertEqual(status.status, .clean)
     }
     
     func testNothingToComitJustAhead() throws {
@@ -129,7 +129,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertNotNil(status.branch.upstream)
         XCTAssertEqual(status.branch.upstream?.name, "origin/main")
         XCTAssertFalse(status.branch.upstream?.isLocal ?? true)
-        XCTAssertEqual(status.status, .unclean)
+        XCTAssertEqual(status.status, .clean)
     }
     
     func testChanges() throws {

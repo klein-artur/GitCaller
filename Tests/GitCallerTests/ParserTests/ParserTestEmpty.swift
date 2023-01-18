@@ -11,10 +11,10 @@ import XCTest
 
 final class ParserTestCommit: XCTestCase {
     
-    var sut: CommitResultParser!
+    var sut: EmptyResultParser!
 
     override func setUpWithError() throws {
-        sut = CommitResultParser()
+        sut = EmptyResultParser()
     }
 
     override func tearDownWithError() throws {

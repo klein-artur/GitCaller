@@ -56,7 +56,9 @@ extension GitRepo: Repository {
         } else {
             result = try await Git().checkout.track().branchName(branch.name).finalResult()
         }
-        objectWillChange.send()
+        if result.didChange {
+            objectWillChange.send()
+        }
         return result
     }
     
@@ -79,15 +81,13 @@ extension GitRepo: Repository {
         return result
     }
     
-    public func stage(file path: String?) async throws -> AddResult {
-        let result: AddResult
+    public func stage(file path: String?) async throws {
         if let path = path {
-            result = try await Git().add.path(path).finalResult()
+            try await Git().add.path(path).ignoreResult()
         } else {
-            result = try await Git().add.all().finalResult()
+            try await Git().add.all().ignoreResult()
         }
         objectWillChange.send()
-        return result
     }
     
     public func unstage(file path: String) async throws -> RestoreResult {
@@ -102,11 +102,49 @@ extension GitRepo: Repository {
         return result
     }
     
-    public func commit(message: String) async throws -> CommitResult {
-        let result = try await Git().commit.message(message).finalResult()
+    public func commit(message: String) async throws {
+        try await Git().commit.message(message).ignoreResult()
         objectWillChange.send()
-        return result
     }
+    
+    public func fetch() async throws {
+        try await Git().fetch.ignoreResult()
+        objectWillChange.send()
+    }
+    
+    public func pull(force: Bool) async throws -> PullResult {
+        let pullResult: PullResult
+        if force {
+//            try await Git().fetch.ignoreResult()
+//            do {
+//                let result = try await Git().reset.hard().branchName("HEAD").runAsync()
+//                print(result)
+//            } catch {
+//                throw ParseError(type: .issueParsing, rawOutput: "")
+//            }
+            pullResult = try await Git().pull.force().finalResult()
+        } else {
+            pullResult = try await Git().pull.finalResult()
+        }
+        if pullResult.didChange {
+            objectWillChange.send()
+        }
+        return pullResult
+    }
+    
+    public func push(force: Bool) async throws -> PushResult {
+        let pushResult: PushResult
+        if force {
+            pushResult = try await Git().push.force().finalResult()
+        } else {
+            pushResult = try await Git().push.finalResult()
+        }
+        if pushResult.didChange {
+            objectWillChange.send()
+        }
+        return pushResult
+    }
+
 }
 
 /// Baseclass for GitCaller. Enables mockability
@@ -137,7 +175,7 @@ public protocol Repository: ObservableObject {
     func delete(branch: Branch, force: Bool) async throws -> BranchResult
     
     /// Adds a given file, if no path given adds all.
-    func stage(file path: String?) async throws -> AddResult
+    func stage(file path: String?) async throws
     
     /// unstages a given file, if no path given adds all.
     func unstage(file path: String) async throws -> RestoreResult
@@ -146,5 +184,16 @@ public protocol Repository: ObservableObject {
     func revert(unstagedFile path: String) async throws -> RestoreResult
     
     /// Commits the currently staged files with the given message.
-    func commit(message: String) async throws -> CommitResult
+    func commit(message: String) async throws
+    
+    /// Fetches from origin or the current brachs upstream repo.
+    func fetch() async throws
+    
+    /// Pulls the current branch.
+    ///  - force: `true` if the pull should be forced.
+    func pull(force: Bool) async throws -> PullResult
+    
+    /// Pushes the current branch.
+    ///  - force: `true` if the pull should be forced.
+    func push(force: Bool) async throws -> PushResult
 }

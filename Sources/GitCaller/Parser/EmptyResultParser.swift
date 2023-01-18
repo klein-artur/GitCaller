@@ -7,13 +7,13 @@
 
 import Foundation
 
-public struct CommitResult: ParseResult {
+public struct EmptyResult: ParseResult {
     public let originalOutput: String
 }
 
-public class CommitResultParser: GitParser, Parser {
+public class EmptyResultParser: GitParser, Parser {
     
-    public typealias Success = CommitResult
+    public typealias Success = EmptyResult
     
     override public init() {
         super.init()
@@ -28,10 +28,10 @@ public class CommitResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let commitResult = CommitResult(originalOutput: result)
+        let emptyResult = EmptyResult(originalOutput: result)
         
         return .success(
-            commitResult
+            emptyResult
         )
     }
     
@@ -45,9 +45,18 @@ public class CommitResultParser: GitParser, Parser {
 
 extension CommandCommit: Parsable {
     
-    public typealias Success = CommitResult
+    public typealias Success = EmptyResult
     
-    public var parser: CommitResultParser {
-        return CommitResultParser()
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}
+
+extension CommandFetch: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
     }
 }

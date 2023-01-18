@@ -7,13 +7,9 @@
 
 import Foundation
 
-public struct AddResult: ParseResult {
-    public let originalOutput: String
-}
-
 public class AddResultParser: GitParser, Parser {
     
-    public typealias Success = AddResult
+    public typealias Success = EmptyResult
     
     override public init() {
         super.init()
@@ -28,10 +24,10 @@ public class AddResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let addResult: AddResult
+        let addResult: EmptyResult
         
         if result.isEmpty {
-            addResult = AddResult(originalOutput: result)
+            addResult = EmptyResult(originalOutput: result)
         } else {
             return .failure(ParseError(type: .issueParsing, rawOutput: result))
         }
@@ -58,7 +54,7 @@ public class AddResultParser: GitParser, Parser {
 
 extension CommandAdd: Parsable {
     
-    public typealias Success = AddResult
+    public typealias Success = EmptyResult
     
     public var parser: AddResultParser {
         return AddResultParser()

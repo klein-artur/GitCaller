@@ -147,7 +147,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getUnmergedChanges(in result: String) -> [Change] {
-        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:\n.*\n.*\n(?:\s*(?:both added|both modified):\s*.*\n?)+"#).first?[0] else {
+        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:(?:\n.*)+\n(?:\s*(?:both added|both modified):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         

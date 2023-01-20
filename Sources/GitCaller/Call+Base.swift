@@ -123,11 +123,7 @@ extension GitRepo: Repository {
         let result: RestoreResult
                 
         if let number = number {
-            var input = ""
-            for step in 0..<number {
-                input += "n\n"
-            }
-            input += "y\nd\n"
+            var input = "g\n\(number + 1)\ny\nd\n"
             
             result = try await command.finalResult(predefinedInput: input)
         } else {

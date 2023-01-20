@@ -81,18 +81,61 @@ extension GitRepo: Repository {
         return result
     }
     
-    public func stage(file path: String?) async throws {
-        if let path = path {
-            try await Git().add.path(path).ignoreResult()
-        } else {
-            try await Git().add.all().ignoreResult()
-        }
+    public func stage(file path: String?, hunk number: Int? = nil) async throws {
+        let command = Git()
+            .add
+            .conditional(path == nil, alternator: { command in
+                command.all()
+            })
+            .ifLet(path, alternator: { command, path in
+                command
+                    .conditional(number != nil, alternator: { command in
+                        command.patch()
+                    })
+                    .minusMinus()
+                    .path(path)
+            })
+                
+                if let number = number {
+                var result = ""
+                for step in 0..<number {
+                    result += "n\n"
+                }
+                result += "y\nd\n"
+                
+                try await command.ignoreResult(predefinedInput: result)
+            } else {
+                try await command.ignoreResult()
+            }
         objectWillChange.send()
     }
     
-    public func unstage(file path: String) async throws -> RestoreResult {
-        let result =  try await Git().restore.staged().path(path).finalResult()
+    public func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult {
+        let command = try await Git()
+            .restore
+            .staged()
+            .conditional(number != nil, alternator: { command in
+                command.patch()
+            })
+            .minusMinus()
+            .path(path)
+                
+        let result: RestoreResult
+                
+        if let number = number {
+            var input = ""
+            for step in 0..<number {
+                input += "n\n"
+            }
+            input += "y\nd\n"
+            
+            result = try await command.finalResult(predefinedInput: input)
+        } else {
+            result = try await command.finalResult()
+        }
+        
         objectWillChange.send()
+                
         return result
     }
     
@@ -157,6 +200,19 @@ extension GitRepo: Repository {
         return result
     }
 
+    public func diff(path: String?, staged: Bool = false, rightPath: String? = nil) async throws -> DiffResult {
+        try await Git().diff
+            .conditional(staged) { command in
+                command.staged()
+            }
+            .ifLet(path) { command, path in
+                command.path(path)
+            }
+            .ifLet(rightPath) { command, path in
+                command.path(path)
+            }
+            .finalResult()
+    }
 }
 
 /// Baseclass for GitCaller. Enables mockability
@@ -187,10 +243,10 @@ public protocol Repository: ObservableObject {
     func delete(branch: Branch, force: Bool) async throws -> BranchResult
     
     /// Adds a given file, if no path given adds all.
-    func stage(file path: String?) async throws
+    func stage(file path: String?, hunk number: Int?) async throws
     
     /// unstages a given file, if no path given adds all.
-    func unstage(file path: String) async throws -> RestoreResult
+    func unstage(file path: String, hunk number: Int?) async throws -> RestoreResult
     
     /// reverts unstaged files.
     func revert(unstagedFile path: String) async throws -> RestoreResult
@@ -211,10 +267,25 @@ public protocol Repository: ObservableObject {
     
     /// Creates a new branch and checks it out.
     func newBranchAndCheckout(name: String) async throws -> CheckoutResult
+    
+    /// Returns the diff. If a path is given it returns the diff only for the file, if a right path is given the two files will be compared.
+    func diff(path: String?, staged: Bool, rightPath: String?) async throws -> DiffResult
 }
 
 public extension Repository {
     func push(force: Bool, createUpstream: Bool = false, remoteName: String? = nil, newName: String? = nil) async throws -> PushResult {
         return try await push(force: force, createUpstream: createUpstream, remoteName: remoteName, newName: newName)
+    }
+    
+    func diff(path: String?, staged: Bool = false, rightPath: String? = nil) async throws -> DiffResult {
+        return try await diff(path: path, rightPath: rightPath)
+    }
+    
+    public func stage(file path: String?, hunk number: Int? = nil) async throws {
+        return try await stage(file: path, hunk: number)
+    }
+    
+    public func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult  {
+        return try await unstage(file: path, hunk: number)
     }
 }

@@ -10,6 +10,6 @@ import Foundation
 public class Git: CommandSpec {
     public init() {}
     
-    public var preceeding: CommandSpec? = nil
+    public var preceeding: (any CommandSpec)? = nil
     public var command: String = "git"
 }

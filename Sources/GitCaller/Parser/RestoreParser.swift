@@ -28,13 +28,7 @@ public class RestoreResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let restoreResult: RestoreResult
-        
-        if result.isEmpty {
-            restoreResult = RestoreResult(originalOutput: result)
-        } else {
-            return .failure(ParseError(type: .issueParsing, rawOutput: result))
-        }
+        let restoreResult = RestoreResult(originalOutput: result)
         
         return .success(
             restoreResult

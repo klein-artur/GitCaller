@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class CommandRestore: Command, HasPathParameter, HasStagedParameter {
+public final class CommandRestore: Command, HasPathParameter, HasStagedParameter, HasMinusMinusParameter, HasPatchParameter {
     public override var command: String {
         "restore"
     }

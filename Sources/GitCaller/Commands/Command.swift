@@ -9,13 +9,19 @@ import Foundation
 
 public protocol CommandSpec {
     /// The preceeding command.
-    var preceeding: CommandSpec? { get set }
+    var preceeding: (any CommandSpec)? { get set }
     
     /// The command as a string.
     var command: String { get }
     
     /// resolves the command
     func resolve() -> String
+    
+    /// Applies the alternator if the condition is true.
+    func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self
+    
+    /// Applies the alternator if the optional is not nil, passes the object to the alternator.
+    func ifLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self
 }
 
 extension CommandSpec {
@@ -50,19 +56,35 @@ extension CommandSpec {
         
         return (resultCommand, parameter)
     }
+    
+    public func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self {
+        if condition {
+            return alternator(self)
+        } else {
+            return self
+        }
+    }
+    
+    public func ifLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self {
+        if let opt = optional {
+            return alternator(self, opt)
+        } else {
+            return self
+        }
+    }
 }
 
 public class Command: Parametrable {
     public var parameter: [Parameter]
     
-    public var preceeding: CommandSpec?
+    public var preceeding: (any CommandSpec)?
     
     public var command: String {
         ""
     }
     
     required init(
-        preceeding: CommandSpec?,
+        preceeding: (any CommandSpec)?,
         parameter: [Parameter] = []
     ) {
         self.parameter = parameter

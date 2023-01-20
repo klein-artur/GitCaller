@@ -37,7 +37,7 @@ final class ParserTestAdd: XCTestCase {
     func testSuccess() throws {
         // given
         let input = """
-        
+        anyinput
         """
         
         // when

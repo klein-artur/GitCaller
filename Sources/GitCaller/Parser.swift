@@ -54,7 +54,7 @@ public protocol ParseResult {
 }
 
 /// Makes a git command parsable.
-public protocol Parsable {
+public protocol Parsable: CommandSpec {
     associatedtype Success: ParseResult
     associatedtype ParserType: Parser
     
@@ -62,16 +62,10 @@ public protocol Parsable {
     var parser: ParserType { get }
     
     /// Parses only the final result of the call and returns it.
-    func finalResult() async throws -> Success
+    func finalResult(predefinedInput: String?) async throws -> Success
     
     /// Parses contiiously until the stream finishes and emits every parse state.
-    func results() -> AnyPublisher<Self.Success, ParseError>
-    
-    /// Runs the current command and returns a `Publisher` that emits the states of the process.
-    func run() -> AnyPublisher<String, Never>
-    
-    /// Provides an async await style run method.
-    func runAsync() async throws -> String
+    func results(predefinedInput: String?) -> AnyPublisher<Self.Success, ParseError>
 }
 
 /// A parser base class to parse git results.
@@ -112,8 +106,8 @@ extension Parsable where Success == ParserType.Success {
             .eraseToAnyPublisher()
     }
     
-    public func finalResult() async throws -> Success {
-        let result = try await self.runAsync()
+    public func finalResult(predefinedInput: String? = nil) async throws -> Success {
+        let result = try await self.runAsync(predefinedInput: predefinedInput)
         let parsedResult = parser.parse(result: result)
         switch parsedResult {
         case let .success(parsedElement):
@@ -123,15 +117,15 @@ extension Parsable where Success == ParserType.Success {
         }
     }
     
-    public func results() -> AnyPublisher<Success, ParseError> {
-        return doParsing(on: self.run())
+    public func results(predefinedInput: String? = nil) -> AnyPublisher<Success, ParseError> {
+        return doParsing(on: self.run(predefinedInput: predefinedInput))
     }
 }
 
 extension Parsable where Success == EmptyResult {
     
-    public func ignoreResult() async throws {
-        _ = try await finalResult()
+    public func ignoreResult(predefinedInput: String? = nil) async throws {
+        _ = try await finalResult(predefinedInput: predefinedInput)
     }
     
 }

@@ -9,7 +9,8 @@ import Foundation
 
 public final class CommandAdd: Command,
                         HasAllParameter,
-                        HasPathParameter
+                        HasPathParameter,
+HasMinusMinusParameter, HasPatchParameter
 {
     public override var command: String {
         "add"

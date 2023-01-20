@@ -11,12 +11,12 @@ import Foundation
 public final class CommandClone: Command {
     let url: String
     
-    init(preceeding: CommandSpec?, parameter: [Parameter] = [], url: String) {
+    init(preceeding: (any CommandSpec)?, parameter: [Parameter] = [], url: String) {
         self.url = url
         super.init(preceeding: preceeding)
     }
     
-    required init(preceeding: CommandSpec?, parameter: [Parameter] = []) {
+    required init(preceeding: (any CommandSpec)?, parameter: [Parameter] = []) {
         fatalError("init(preceeding:parameter:) has not been implemented")
     }
     

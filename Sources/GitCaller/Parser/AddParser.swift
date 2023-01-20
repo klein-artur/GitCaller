@@ -24,13 +24,7 @@ public class AddResultParser: GitParser, Parser {
             return .failure(error)
         }
         
-        let addResult: EmptyResult
-        
-        if result.isEmpty {
-            addResult = EmptyResult(originalOutput: result)
-        } else {
-            return .failure(ParseError(type: .issueParsing, rawOutput: result))
-        }
+        let addResult = EmptyResult(originalOutput: result)
         
         return .success(
             addResult
@@ -38,7 +32,7 @@ public class AddResultParser: GitParser, Parser {
     }
     
     private func checkFatal(result: String) -> ParseError? {
-        guard result.contains("fatal: ") || result.contains("error: ") else {
+        guard result.hasPrefix("fatal: ") || result.hasPrefix("error: ") else {
             return nil
         }
          

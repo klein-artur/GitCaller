@@ -97,13 +97,9 @@ extension GitRepo: Repository {
             })
                 
                 if let number = number {
-                var result = ""
-                for step in 0..<number {
-                    result += "n\n"
-                }
-                result += "y\nd\n"
+                    let input = "g\n\(number + 1)\ny\nd\n"
                 
-                try await command.ignoreResult(predefinedInput: result)
+                try await command.ignoreResult(predefinedInput: input)
             } else {
                 try await command.ignoreResult()
             }
@@ -111,7 +107,7 @@ extension GitRepo: Repository {
     }
     
     public func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult {
-        let command = try await Git()
+        let command = Git()
             .restore
             .staged()
             .conditional(number != nil, alternator: { command in
@@ -123,7 +119,7 @@ extension GitRepo: Repository {
         let result: RestoreResult
                 
         if let number = number {
-            var input = "g\n\(number + 1)\ny\nd\n"
+            let input = "g\n\(number + 1)\ny\nd\n"
             
             result = try await command.finalResult(predefinedInput: input)
         } else {

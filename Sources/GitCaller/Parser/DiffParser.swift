@@ -19,6 +19,11 @@ public struct DiffResult: ParseResult {
     public let originalOutput: String
 }
 
+public struct HunkRange {
+    public let position: Int
+    public let length: Int?
+}
+
 public enum LineType {
     case left
     case right
@@ -37,7 +42,8 @@ public struct HunkLine {
 }
 
 public struct Hunk {
-    public let header: String
+    public let leftFileRange: HunkRange
+    public let rightFileRange: HunkRange
     public let lines: [HunkLine]
     public let original: String
 }
@@ -65,7 +71,7 @@ public class DiffResultParser: GitParser, Parser {
         }
         
         do {
-            let diffs = try result.find(rgx: #"\s(?:a\/)?(.*)(?:\sb\/(.*))?\nindex.*\n(.)\3\3\sa\/\1\s*\n(.)\4\4\sb\/(?:\2|\1)\s*\n([\s\S]*?)(?=diff\s--(git|cc)|\Z)"#)
+            let diffs = try result.find(rgx: #"\sa\/(.*)\sb\/(.*)\nindex.*\n(.)\3\3\sa\/\1\s*\n(.)\4\4\sb\/\2\s*\n([\s\S]*?)(?=diff\s--git|\Z)"#)
                 .map { foundDiff in
                     try parseDiff(in: foundDiff, rawOutput: result)
                 }
@@ -87,10 +93,9 @@ public class DiffResultParser: GitParser, Parser {
     }
     
     private func parseDiff(in result: RgxResult, rawOutput: String) throws -> Diff {
-        guard let leftName = result[1], let leftIdent = result[3], let rightIdent = result[4] else {
+        guard let leftName = result[1], let rightName = result[2], let leftIdent = result[3], let rightIdent = result[4] else {
             throw ParseError(type: .unidentifiableDiff, rawOutput: rawOutput)
         }
-        let rightName = result[2] ?? leftName
         guard let diffContent = result[5] else {
             throw ParseError(type: .diffWithoutContent, rawOutput: rawOutput)
         }
@@ -105,16 +110,23 @@ public class DiffResultParser: GitParser, Parser {
     }
     
     private func parseChunks(in result: String, leftIdent: String, rightIdent: String, rawOutput: String) throws -> [Hunk] {
-        try result.find(rgx: #"(@{2,3}\s[-+0-9,\s]+\s@{2,3})([\s\S]*?)(?=\n@@|\Z)"#)
+        try result.find(rgx: "@@\\s\(leftIdent)([0-9,]+)\\s\\\(rightIdent)([0-9,]+)\\s@@([\\s\\S]*?)(?=\\n@@|\\Z)")
             .map({ result in
-                guard let hunkHeader = result[1] else {
+                guard
+                    let leftFileRange = result[1]?.split(separator: ","),
+                        let rightFileRange = result[2]?.split(separator: ",") else {
                     throw ParseError(type: .hunkWithoutChangesets, rawOutput: rawOutput)
                 }
-                guard let hunkContent = result[2] else {
+                guard let hunkContent = result[3] else {
                     throw ParseError(type: .hunkWithoutContent, rawOutput: rawOutput)
                 }
+                let leftFilePosition = Int(leftFileRange[0]) ?? 0
+                let leftFileLength = leftFileRange.count == 2 ? Int(leftFileRange[1]) ?? 0 : nil
+                let rightFilePosition = Int(rightFileRange[0]) ?? 0
+                let rightFileLength = rightFileRange.count == 2 ? Int(rightFileRange[1]) : nil
                 return Hunk(
-                    header: hunkHeader,
+                    leftFileRange: HunkRange(position: leftFilePosition, length: leftFileLength),
+                    rightFileRange: HunkRange(position: rightFilePosition, length: rightFileLength),
                     lines: parseLines(in: hunkContent, leftIdent: leftIdent, rightIdent: rightIdent),
                     original: result[0]!
                 )

@@ -8,8 +8,16 @@
 import Foundation
 
 public class Git: CommandSpec {
-    public init() {}
+    public let command: String
+    
+    public init(raw: String? = nil) {
+        if let raw = raw {
+            self.command = "git \(raw)"
+        } else {
+            self.command = "git"
+        }
+    }
     
     public var preceeding: (any CommandSpec)? = nil
-    public var command: String = "git"
 }
+

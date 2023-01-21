@@ -205,6 +205,10 @@ extension GitRepo: Repository {
             }
             .finalResult()
     }
+    
+    public func needsUpdate() {
+        self.objectWillChange.send()
+    }
 }
 
 /// Baseclass for GitCaller. Enables mockability
@@ -262,6 +266,9 @@ public protocol Repository: ObservableObject {
     
     /// Returns the diff. If a path is given it returns the diff only for the file, if a right path is given the two files will be compared.
     func diff(path: String?, staged: Bool, rightPath: String?) async throws -> DiffResult
+    
+    /// Informs all listeners that this repo needs an update.
+    func needsUpdate()
 }
 
 public extension Repository {

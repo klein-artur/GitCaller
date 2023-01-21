@@ -26,7 +26,7 @@ final class ParserTestDiff: XCTestCase {
         
         // then
         result.checkSuccess { result in
-            XCTAssertEqual(result.diffs.count, 3)
+            XCTAssertEqual(result.diffs.count, 2)
         }
     }
     
@@ -68,8 +68,14 @@ final class ParserTestDiff: XCTestCase {
         
         // then
         result.checkSuccess { result in
-            XCTAssertEqual(result.diffs[1].hunks[0].header, "@@ -3 +3 @@")
-            XCTAssertEqual(result.diffs[1].hunks[1].header, "@@ -33,7 +33,7 @@")
+            XCTAssertEqual(result.diffs[1].hunks[0].leftFileRange.position, 3)
+            XCTAssertNil(result.diffs[1].hunks[0].leftFileRange.length)
+            XCTAssertEqual(result.diffs[1].hunks[0].rightFileRange.position, 3)
+            XCTAssertNil(result.diffs[1].hunks[0].rightFileRange.length)
+            XCTAssertEqual(result.diffs[1].hunks[1].leftFileRange.position, 33)
+            XCTAssertEqual(result.diffs[1].hunks[1].leftFileRange.length, 7)
+            XCTAssertEqual(result.diffs[1].hunks[1].rightFileRange.position, 33)
+            XCTAssertEqual(result.diffs[1].hunks[1].rightFileRange.length, 7)
         }
     }
     
@@ -121,23 +127,6 @@ final class ParserTestDiff: XCTestCase {
     -asdf
     +asdffdsa
      
-     
-    diff --cc testfile
-    index 6cfbc88,a3f5983..0000000
-    --- a/testfile
-    +++ b/testfile
-    @@@ -1,6 -1,6 +1,11 @@@
-      asdf
-      
-      
-    ++<<<<<<< HEAD
-     +fdsa
-     +
-    ++=======
-    + asdf
-    +
-    ++>>>>>>> main
-      asdf
     """
 
 }

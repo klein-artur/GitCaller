@@ -110,7 +110,7 @@ public class DiffResultParser: GitParser, Parser {
     }
     
     private func parseChunks(in result: String, leftIdent: String, rightIdent: String, rawOutput: String) throws -> [Hunk] {
-        try result.find(rgx: "@@\\s\(leftIdent)([0-9,]+)\\s\\\(rightIdent)([0-9,]+)\\s@@([\\s\\S]*?)(?=\\n@@|\\Z)")
+        try result.find(rgx: "@@\\s\(leftIdent)([0-9,]+)\\s\\\(rightIdent)([0-9,]+)\\s@@.*\\n([\\s\\S]*?)(?=\\n@@|\\Z)")
             .map({ result in
                 guard
                     let leftFileRange = result[1]?.split(separator: ","),

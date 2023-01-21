@@ -80,7 +80,7 @@ final class ParserTestDiff: XCTestCase {
         // then
         result.checkSuccess { result in
             XCTAssertEqual(result.diffs[0].hunks[0].lines.count, 6)
-            XCTAssertEqual(result.diffs[1].hunks[0].lines.count, 9)
+            XCTAssertEqual(result.diffs[1].hunks[0].lines.count, 8)
             
             XCTAssertEqual(result.diffs[0].hunks[0].lines[0].type, LineType.both)
             XCTAssertEqual(result.diffs[0].hunks[0].lines[2].type, LineType.left)

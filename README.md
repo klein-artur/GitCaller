@@ -4,6 +4,10 @@ This is a swift package currently in development. It is meant as a git bridge fo
 
 It is used by the project [GitBuddy](https://github.com/klein-artur/GitBuddy). 
 
+## Integration as a Swift Package.
+
+Integrate it using the url of this package shown in the browser.
+
 ## How it works.
 
 The idea is to have a nice api to run git commands For example:

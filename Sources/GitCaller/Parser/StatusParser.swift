@@ -54,6 +54,7 @@ public struct Change {
         case newFile = "new file"
         case bothAdded = "both added"
         case bothModified = "both modified"
+        case renamed = "renamed"
     }
     
     public enum State {
@@ -131,7 +132,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getStagedChanged(in result: String) -> [Change] {
-        guard let stagedGroup = result.find(rgx: #"Changes to be committed:\n.*\n(?:\s*(?:modified|deleted|new file):\s*.*\n?)+"#).first?[0] else {
+        guard let stagedGroup = result.find(rgx: #"Changes to be committed:\n.*\n(?:\s*(?:modified|deleted|new file|renamed):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         
@@ -172,10 +173,12 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func findChangesIn(group: String, state: Change.State) -> [Change] {
-        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified):\s*(.*)"#)
+        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed):\s*(.*)"#)
             .map { foundChange in
-                Change(
-                    path: foundChange[2]!,
+                let substring = foundChange[2]?.split(separator: " -> ").last
+                let path = String(substring!)
+                return Change(
+                    path: path,
                     kind: Change.Kind(rawValue: foundChange[1]!)!,
                     state: state
                 )
@@ -185,7 +188,7 @@ public class StatusParser: GitParser, Parser {
 
 /// Tests
 public extension StatusResult {
-    public static func getTestStatus() -> StatusResult {
+    static func getTestStatus() -> StatusResult {
         StatusResult(
             originalOutput: "",
             branch: Branch(

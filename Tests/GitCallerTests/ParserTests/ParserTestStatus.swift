@@ -144,6 +144,7 @@ final class ParserTestStatus: XCTestCase {
             modified:   shared/ContentView.swift
             deleted:    shared/DeviceDetail/EditDevicePrioView.swift
             new file:   shared/DeviceDetail/Test2.swift
+            renamed:    test/testfile -> test/testfileNew
 
         Changes not staged for commit:
           (use "git add/rm <file>..." to update what will be committed)
@@ -163,7 +164,7 @@ final class ParserTestStatus: XCTestCase {
         let status = try result.get()
         
         // then
-        XCTAssertEqual(status.stagedChanges.count, 3)
+        XCTAssertEqual(status.stagedChanges.count, 4)
         XCTAssertEqual(status.unstagedChanges.count, 3)
         XCTAssertEqual(status.untrackedChanges.count, 2)
         XCTAssertEqual(status.stagedChanges[0].state, .staged)
@@ -173,6 +174,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unstagedChanges[0].state, .unstaged)
         XCTAssertEqual(status.unstagedChanges[2].kind, .deleted)
         XCTAssertEqual(status.untrackedChanges[1].path, "shared/DeviceDetail/Test2.swift")
+        XCTAssertEqual(status.stagedChanges[3].path, "test/testfileNew")
         XCTAssertEqual(status.status, .unclean)
     }
     

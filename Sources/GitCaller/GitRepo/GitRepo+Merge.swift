@@ -19,8 +19,8 @@ extension GitRepo {
     }
     
     public func getMergeCommitMessage() async throws -> String {
-        var gitPath = try await Git().revParse.gitDir().runAsync()
-        gitPath += "/MERGE_MSG"
+        var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
+        gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/MERGE_MSG"
         return try String(contentsOfFile: gitPath)
     }
     

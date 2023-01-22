@@ -14,6 +14,9 @@ public struct StatusResult: ParseResult {
     public var originalOutput: String
     
     public let branch: Branch
+    
+    public let isMerging: Bool
+    
     public var stagedChanges: [Change] = []
     public var unstagedChanges: [Change] = []
     public var untrackedChanges: [Change] = []
@@ -21,7 +24,7 @@ public struct StatusResult: ParseResult {
     
     public var status: Status {
         
-        if !unmergedChanges.isEmpty {
+        if isMerging {
             return .merging
         }
         
@@ -116,6 +119,11 @@ public class StatusParser: GitParser, Parser {
             behind = Int(foundBehind) ?? 0
         }
         
+        var isMerging = false
+        if result.find(rgx: #"\nAll conflicts fixed but you are still merging\.\n|\nYou have unmerged paths\.\n"#).first != nil {
+            isMerging = true
+        }
+        
         var upstream: Branch?
         if let upstreamName = result.find(rgx: "(?:with|behind|and|of) '(.*)'").first?[1] {
             upstream = Branch(name: upstreamName, isCurrent: false, isLocal: false)
@@ -133,6 +141,7 @@ public class StatusParser: GitParser, Parser {
                     upstream: upstream,
                     detached: detached
                 ),
+                isMerging: isMerging,
                 stagedChanges: getStagedChanged(in: result),
                 unstagedChanges: getUnstagedChanges(in: result),
                 untrackedChanges: getUntrackedFiles(in: result),
@@ -210,6 +219,7 @@ public extension StatusResult {
                 upstream: Branch(name: "origin/some_very_very_very_very_very_long/branch_name", isCurrent: false, isLocal: false),
                 detached: false
             ),
+            isMerging: false,
             stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],
             unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged)],
             untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked)],

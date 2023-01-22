@@ -200,9 +200,6 @@ final class ParserTestStatus: XCTestCase {
             both added:      shared/ContentView.swift
             deleted by us:   some file
             deleted by them: some file
-
-        a.hellmann@Asset-10282 Home-iOS %
-
         """
         
         // when
@@ -327,6 +324,62 @@ final class ParserTestStatus: XCTestCase {
         result.checkSuccess { statusResult in
             XCTAssertEqual(statusResult.stagedChanges.count, 1)
             XCTAssertEqual(statusResult.unstagedChanges.count, 1)
+        }
+    }
+    
+    func testInMergingProcessAllResolved() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 3 commits.
+          (use "git push" to publish your local commits)
+
+        All conflicts fixed but you are still merging.
+          (use "git commit" to conclude merge)
+
+        Changes to be committed:
+            modified:   testfile
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .merging)
+        }
+    }
+    
+    func testInMergingProcess() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 1 commit.
+          (use "git push" to publish your local commits)
+
+        You have unmerged paths.
+          (fix conflicts and run "git commit")
+          (use "git merge --abort" to abort the merge)
+
+        Changes to be committed:
+            new file:   Home.xcodeproj/xcuserdata/a.hellmann.xcuserdatad/xcschemes/xcschememanagement.plist
+            new file:   shared/Constants.swift
+
+        Unmerged paths:
+          (use "git add <file>..." to mark resolution)
+            both added:      .gitignore
+            both modified:   Home.xcodeproj/project.pbxproj
+            both added:      shared/ContentView.swift
+            deleted by us:   some file
+            deleted by them: some file
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .merging)
         }
     }
 

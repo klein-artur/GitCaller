@@ -60,3 +60,21 @@ extension CommandFetch: Parsable {
         return EmptyResultParser()
     }
 }
+
+extension CommandMerge: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}
+
+extension CommandMergeTool: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}

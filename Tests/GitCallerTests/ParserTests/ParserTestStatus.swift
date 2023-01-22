@@ -198,6 +198,8 @@ final class ParserTestStatus: XCTestCase {
             both added:      .gitignore
             both modified:   Home.xcodeproj/project.pbxproj
             both added:      shared/ContentView.swift
+            deleted by us:   some file
+            deleted by them: some file
 
         a.hellmann@Asset-10282 Home-iOS %
 
@@ -208,7 +210,7 @@ final class ParserTestStatus: XCTestCase {
         let status = try result.get()
         
         // then
-        XCTAssertEqual(status.unmergedChanges.count, 3)
+        XCTAssertEqual(status.unmergedChanges.count, 5)
         XCTAssertEqual(status.unmergedChanges[0].state, .unmerged)
         XCTAssertEqual(status.unmergedChanges[0].kind, .bothAdded)
         XCTAssertEqual(status.unmergedChanges[1].kind, .bothModified)

@@ -55,6 +55,8 @@ public struct Change {
         case bothAdded = "both added"
         case bothModified = "both modified"
         case renamed = "renamed"
+        case deletedByUs = "deleted by us"
+        case deletedByThem = "deleted by them"
     }
     
     public enum State {
@@ -148,7 +150,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getUnmergedChanges(in result: String) -> [Change] {
-        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:(?:\n.*)+\n(?:\s*(?:both added|both modified):\s*.*\n?)+"#).first?[0] else {
+        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:(?:\n.*)+\n(?:\s*(?:both added|both modified|deleted by them|deleted by us):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         
@@ -173,7 +175,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func findChangesIn(group: String, state: Change.State) -> [Change] {
-        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed):\s*(.*)"#)
+        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed|deleted by them|deleted by us):\s*(.*)"#)
             .map { foundChange in
                 let substring = foundChange[2]?.split(separator: " -> ").last
                 let path = String(substring!)

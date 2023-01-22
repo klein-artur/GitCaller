@@ -8,7 +8,7 @@
 import Foundation
 
 /// Git command for `git rev-parse`
-public final class CommandRevParse: Command, HasGitDirParameter
+public final class CommandRevParse: Command, HasGitDirParameter, HasPathFormatParameter
 {
     public override var command: String {
         "rev-parse"

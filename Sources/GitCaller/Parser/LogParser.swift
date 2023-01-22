@@ -326,7 +326,7 @@ public class CommitList: BidirectionalCollection {
     }
     
     private func getParents(for commit: Commit) -> [Commit] {
-        commit.parents.reversed().map { commitDict[$0] }.filter { $0 != nil }.map { $0! }
+        commit.parents.map { commitDict[$0] }.filter { $0 != nil }.map { $0! }
     }
     
     private func getNextStep(for commit: Commit?, nextCommit: Commit?) -> PathStep {

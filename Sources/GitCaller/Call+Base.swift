@@ -70,6 +70,9 @@ public protocol Repository: ObservableObject {
     /// Starts a merge of the branch into the current one.
     func merge(branch: String) async throws
     
+    /// Aborts the current running merge
+    func abortMerge() async throws
+    
     /// Opens the mergetool on a merge conflict.
     func mergetool(file: String, tool: String) async throws
     

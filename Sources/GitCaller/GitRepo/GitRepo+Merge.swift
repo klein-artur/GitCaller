@@ -23,4 +23,9 @@ extension GitRepo {
         gitPath += "/MERGE_MSG"
         return try String(contentsOfFile: gitPath)
     }
+    
+    public func abortMerge() async throws {
+        try await Git().merge.abort().ignoreResult()
+        self.needsUpdate()
+    }
 }

@@ -298,5 +298,36 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.untrackedChanges.count, 8)
         XCTAssertEqual(status.status, .unclean)
     }
+    
+    func testOneNewFileAndOneUnmerged() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 3 commits.
+          (use "git push" to publish your local commits)
+
+        All conflicts fixed but you are still merging.
+          (use "git commit" to conclude merge)
+
+        Changes to be committed:
+            new file:   testfile.orig
+
+        Changes not staged for commit:
+          (use "git add <file>..." to update what will be committed)
+          (use "git restore <file>..." to discard changes in working directory)
+            modified:   testfile
+
+
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { statusResult in
+            XCTAssertEqual(statusResult.stagedChanges.count, 1)
+            XCTAssertEqual(statusResult.unstagedChanges.count, 1)
+        }
+    }
 
 }

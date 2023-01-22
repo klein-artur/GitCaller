@@ -142,7 +142,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getStagedChanged(in result: String) -> [Change] {
-        guard let stagedGroup = result.find(rgx: #"Changes to be committed:\n.*\n(?:\s*(?:modified|deleted|new file|renamed):\s*.*\n?)+"#).first?[0] else {
+        guard let stagedGroup = result.find(rgx: #"Changes to be committed:(?:\n.*)?\n(?:\s*(?:modified|deleted|new file|renamed):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         

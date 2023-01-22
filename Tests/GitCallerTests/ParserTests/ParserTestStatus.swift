@@ -214,7 +214,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unmergedChanges[0].state, .unmerged)
         XCTAssertEqual(status.unmergedChanges[0].kind, .bothAdded)
         XCTAssertEqual(status.unmergedChanges[1].kind, .bothModified)
-        XCTAssertEqual(status.status, .unclean)
+        XCTAssertEqual(status.status, .merging)
     }
     
     func testDetached() throws {

@@ -20,7 +20,12 @@ public struct StatusResult: ParseResult {
     public var unmergedChanges: [Change] = []
     
     public var status: Status {
-        if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty || !unmergedChanges.isEmpty {
+        
+        if !unmergedChanges.isEmpty {
+            return .merging
+        }
+        
+        if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty {
             return .unclean
         }
         
@@ -40,6 +45,9 @@ public struct StatusResult: ParseResult {
         
         /// Repo has changes.
         case unclean
+        
+        /// Repo is in merging state
+        case merging
     }
 }
 

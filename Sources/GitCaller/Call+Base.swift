@@ -70,6 +70,10 @@ public protocol Repository: ObservableObject {
     /// Starts a merge of the branch into the current one.
     func merge(branch: String, noFF: Bool) async throws
     
+    /// Uses either theirs or ours in a merge or rebase context.
+    func useOurs(path: String) async throws -> CheckoutResult
+    func useTheirs(path: String) async throws -> CheckoutResult
+    
     /// Aborts the current running merge
     func abortMerge() async throws
     

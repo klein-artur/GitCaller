@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class CommandCheckout: Command, HasLowercaseBParameter, HasBranchnameParameter, HasTrackParameter
+public final class CommandCheckout: Command, HasLowercaseBParameter, HasBranchnameParameter, HasTrackParameter, HasPathParameter, HasOursParameter, HasTheirsParameter
 {
     public override var command: String {
         "checkout"

@@ -8,8 +8,15 @@
 import Foundation
 
 extension GitRepo {
-    public func merge(branch: String) async throws {
-        try await Git().merge.branchName(branch).ignoreResult()
+    public func merge(branch: String, noFF: Bool) async throws {
+        try await Git()
+            .merge
+            .conditional(noFF, alternator: { command in
+                command.noFF()
+            })
+            .minusMinus()
+            .branchName(branch)
+            .ignoreResult()
         self.needsUpdate()
     }
     

@@ -77,6 +77,9 @@ public protocol Repository: ObservableObject {
     /// Aborts the current running merge
     func abortMerge() async throws
     
+    /// Continue the current running merge
+    func continueMerge() async throws
+    
     /// Opens the mergetool on a merge conflict.
     func mergetool(file: String, tool: String) async throws
     

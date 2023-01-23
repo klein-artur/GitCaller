@@ -40,6 +40,10 @@ extension GitRepo {
         try await use(path: path, theirs: false)
     }
     
+    public func continueMerge() async throws {
+        try await Git().merge._continue().ignoreResult()
+    }
+    
     public func useTheirs(path: String) async throws {
         try await use(path: path, theirs: true)
     }

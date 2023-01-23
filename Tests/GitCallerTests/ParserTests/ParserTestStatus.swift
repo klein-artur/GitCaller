@@ -144,6 +144,7 @@ final class ParserTestStatus: XCTestCase {
             modified:   shared/ContentView.swift
             deleted:    shared/DeviceDetail/EditDevicePrioView.swift
             new file:   shared/DeviceDetail/Test2.swift
+            renamed:    test/testfile -> test/testfileNew
 
         Changes not staged for commit:
           (use "git add/rm <file>..." to update what will be committed)
@@ -163,7 +164,7 @@ final class ParserTestStatus: XCTestCase {
         let status = try result.get()
         
         // then
-        XCTAssertEqual(status.stagedChanges.count, 3)
+        XCTAssertEqual(status.stagedChanges.count, 4)
         XCTAssertEqual(status.unstagedChanges.count, 3)
         XCTAssertEqual(status.untrackedChanges.count, 2)
         XCTAssertEqual(status.stagedChanges[0].state, .staged)
@@ -173,6 +174,7 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unstagedChanges[0].state, .unstaged)
         XCTAssertEqual(status.unstagedChanges[2].kind, .deleted)
         XCTAssertEqual(status.untrackedChanges[1].path, "shared/DeviceDetail/Test2.swift")
+        XCTAssertEqual(status.stagedChanges[3].path, "test/testfileNew")
         XCTAssertEqual(status.status, .unclean)
     }
     
@@ -196,9 +198,8 @@ final class ParserTestStatus: XCTestCase {
             both added:      .gitignore
             both modified:   Home.xcodeproj/project.pbxproj
             both added:      shared/ContentView.swift
-
-        a.hellmann@Asset-10282 Home-iOS %
-
+            deleted by us:   some file
+            deleted by them: some file
         """
         
         // when
@@ -206,11 +207,11 @@ final class ParserTestStatus: XCTestCase {
         let status = try result.get()
         
         // then
-        XCTAssertEqual(status.unmergedChanges.count, 3)
+        XCTAssertEqual(status.unmergedChanges.count, 5)
         XCTAssertEqual(status.unmergedChanges[0].state, .unmerged)
         XCTAssertEqual(status.unmergedChanges[0].kind, .bothAdded)
         XCTAssertEqual(status.unmergedChanges[1].kind, .bothModified)
-        XCTAssertEqual(status.status, .unclean)
+        XCTAssertEqual(status.status, .merging)
     }
     
     func testDetached() throws {
@@ -293,6 +294,93 @@ final class ParserTestStatus: XCTestCase {
         XCTAssertEqual(status.unstagedChanges.count, 3)
         XCTAssertEqual(status.untrackedChanges.count, 8)
         XCTAssertEqual(status.status, .unclean)
+    }
+    
+    func testOneNewFileAndOneUnmerged() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 3 commits.
+          (use "git push" to publish your local commits)
+
+        All conflicts fixed but you are still merging.
+          (use "git commit" to conclude merge)
+
+        Changes to be committed:
+            new file:   testfile.orig
+
+        Changes not staged for commit:
+          (use "git add <file>..." to update what will be committed)
+          (use "git restore <file>..." to discard changes in working directory)
+            modified:   testfile
+
+
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { statusResult in
+            XCTAssertEqual(statusResult.stagedChanges.count, 1)
+            XCTAssertEqual(statusResult.unstagedChanges.count, 1)
+        }
+    }
+    
+    func testInMergingProcessAllResolved() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 3 commits.
+          (use "git push" to publish your local commits)
+
+        All conflicts fixed but you are still merging.
+          (use "git commit" to conclude merge)
+
+        Changes to be committed:
+            modified:   testfile
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .merging)
+        }
+    }
+    
+    func testInMergingProcess() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 1 commit.
+          (use "git push" to publish your local commits)
+
+        You have unmerged paths.
+          (fix conflicts and run "git commit")
+          (use "git merge --abort" to abort the merge)
+
+        Changes to be committed:
+            new file:   Home.xcodeproj/xcuserdata/a.hellmann.xcuserdatad/xcschemes/xcschememanagement.plist
+            new file:   shared/Constants.swift
+
+        Unmerged paths:
+          (use "git add <file>..." to mark resolution)
+            both added:      .gitignore
+            both modified:   Home.xcodeproj/project.pbxproj
+            both added:      shared/ContentView.swift
+            deleted by us:   some file
+            deleted by them: some file
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .merging)
+        }
     }
 
 }

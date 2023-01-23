@@ -15,7 +15,10 @@ public class EmptyResultParser: GitParser, Parser {
     
     public typealias Success = EmptyResult
     
-    override public init() {
+    let additionalFailureRegexes: [String]
+    
+    public init(additionalFailureRegexes: [String] = []) {
+        self.additionalFailureRegexes = additionalFailureRegexes
         super.init()
     }
     
@@ -36,7 +39,12 @@ public class EmptyResultParser: GitParser, Parser {
     }
     
     private func checkFatal(result: String) -> ParseError? {
-        guard result.contains("fatal: ") || result.contains("error: ") else {
+        for rgx in additionalFailureRegexes {
+            if result.contains(rgx: rgx) {
+                return ParseError(type: .issueParsing, rawOutput: result)
+            }
+        }
+        guard result.hasPrefix("fatal: ") || result.hasPrefix("error: ") else {
             return nil
         }
         return ParseError(type: .issueParsing, rawOutput: result)
@@ -48,11 +56,34 @@ extension CommandCommit: Parsable {
     public typealias Success = EmptyResult
     
     public var parser: EmptyResultParser {
-        return EmptyResultParser()
+        return EmptyResultParser(
+            additionalFailureRegexes: [
+                "Aborting commit due to empty commit message.\n",
+                "error: Committing is not possible because you have unmerged files"
+            ]
+        )
     }
 }
 
 extension CommandFetch: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}
+
+extension CommandMerge: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}
+
+extension CommandMergeTool: Parsable {
     
     public typealias Success = EmptyResult
     

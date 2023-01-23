@@ -14,13 +14,21 @@ public struct StatusResult: ParseResult {
     public var originalOutput: String
     
     public let branch: Branch
+    
+    public let isMerging: Bool
+    
     public var stagedChanges: [Change] = []
     public var unstagedChanges: [Change] = []
     public var untrackedChanges: [Change] = []
     public var unmergedChanges: [Change] = []
     
     public var status: Status {
-        if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty || !unmergedChanges.isEmpty {
+        
+        if isMerging {
+            return .merging
+        }
+        
+        if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty {
             return .unclean
         }
         
@@ -40,6 +48,9 @@ public struct StatusResult: ParseResult {
         
         /// Repo has changes.
         case unclean
+        
+        /// Repo is in merging state
+        case merging
     }
 }
 
@@ -54,6 +65,9 @@ public struct Change {
         case newFile = "new file"
         case bothAdded = "both added"
         case bothModified = "both modified"
+        case renamed = "renamed"
+        case deletedByUs = "deleted by us"
+        case deletedByThem = "deleted by them"
     }
     
     public enum State {
@@ -105,6 +119,11 @@ public class StatusParser: GitParser, Parser {
             behind = Int(foundBehind) ?? 0
         }
         
+        var isMerging = false
+        if result.find(rgx: #"\nAll conflicts fixed but you are still merging\.\n|\nYou have unmerged paths\.\n"#).first != nil {
+            isMerging = true
+        }
+        
         var upstream: Branch?
         if let upstreamName = result.find(rgx: "(?:with|behind|and|of) '(.*)'").first?[1] {
             upstream = Branch(name: upstreamName, isCurrent: false, isLocal: false)
@@ -122,6 +141,7 @@ public class StatusParser: GitParser, Parser {
                     upstream: upstream,
                     detached: detached
                 ),
+                isMerging: isMerging,
                 stagedChanges: getStagedChanged(in: result),
                 unstagedChanges: getUnstagedChanges(in: result),
                 untrackedChanges: getUntrackedFiles(in: result),
@@ -131,7 +151,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getStagedChanged(in result: String) -> [Change] {
-        guard let stagedGroup = result.find(rgx: #"Changes to be committed:\n.*\n(?:\s*(?:modified|deleted|new file):\s*.*\n?)+"#).first?[0] else {
+        guard let stagedGroup = result.find(rgx: #"Changes to be committed:(?:\n.*)?\n(?:\s*(?:modified|deleted|new file|renamed):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         
@@ -147,7 +167,7 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func getUnmergedChanges(in result: String) -> [Change] {
-        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:(?:\n.*)+\n(?:\s*(?:both added|both modified):\s*.*\n?)+"#).first?[0] else {
+        guard let unmergedGroup = result.find(rgx: #"Unmerged paths:(?:\n.*)+\n(?:\s*(?:both added|both modified|deleted by them|deleted by us):\s*.*\n?)+"#).first?[0] else {
             return []
         }
         
@@ -172,10 +192,12 @@ public class StatusParser: GitParser, Parser {
     }
     
     private func findChangesIn(group: String, state: Change.State) -> [Change] {
-        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified):\s*(.*)"#)
+        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed|deleted by them|deleted by us):\s*(.*)"#)
             .map { foundChange in
-                Change(
-                    path: foundChange[2]!,
+                let substring = foundChange[2]?.split(separator: " -> ").last
+                let path = String(substring!)
+                return Change(
+                    path: path,
                     kind: Change.Kind(rawValue: foundChange[1]!)!,
                     state: state
                 )
@@ -185,7 +207,7 @@ public class StatusParser: GitParser, Parser {
 
 /// Tests
 public extension StatusResult {
-    public static func getTestStatus() -> StatusResult {
+    static func getTestStatus() -> StatusResult {
         StatusResult(
             originalOutput: "",
             branch: Branch(
@@ -197,6 +219,7 @@ public extension StatusResult {
                 upstream: Branch(name: "origin/some_very_very_very_very_very_long/branch_name", isCurrent: false, isLocal: false),
                 detached: false
             ),
+            isMerging: false,
             stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],
             unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged)],
             untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked)],

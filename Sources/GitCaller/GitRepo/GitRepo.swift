@@ -40,6 +40,7 @@ extension GitRepo: Repository {
             .log
             .pretty(.format(LogResultParser.prettyFormat))
             .topoOrder()
+            .all()
             .finalResult()
     }
     

@@ -89,6 +89,7 @@ public class CommitListInformation {
 
 indirect enum PathStep {
     case opens(from: Int, shiftBy: Int)
+    case begins(commit: Commit)
     case commit(commit: Commit)
     case fallThrough(toCommit: Commit?, closes: Int?, opens: Int?, shiftBy: Int)
     case closes(to: Int, shiftBy: Int)
@@ -159,7 +160,7 @@ public class CommitList: BidirectionalCollection {
         return result
     }()
     var indexedObjects = [Element]()
-    let indexedCommits: [String: Int]
+    var foundParents: Set<String> = Set()
     var accessedIndex = 0
     
     var paths = [GitPath]()
@@ -187,9 +188,6 @@ public class CommitList: BidirectionalCollection {
         self.base = base
         let firstCommit = base.first
         self.currentTreeCommits = firstCommit != nil ? [firstCommit!] : []
-        self.indexedCommits = self.base.enumerated().reduce(into: [:]) { (result, element) in
-            result[element.element.objectHash] = element.offset
-        }
     }
     
     public subscript(position: Index) -> Element {
@@ -234,10 +232,21 @@ public class CommitList: BidirectionalCollection {
                 treeBranches.append(
                     CommitTreeBranch(incoming: [Line(begins: index, ends: to - shiftBy, isShift: false)], outgoing: [], hasBubble: false, trace: path.trace)
                 )
-            case .commit(_):
-                let incoming = position != 0 ? [Line(begins: index, ends: index, isShift: false)] : []
+            case .commit(_), .begins(_):
+                var incoming = [Line]()
+                
+                if case .commit = path.currentStep, position != 0 {
+                    incoming = [Line(begins: index, ends: index, isShift: false)]
+                }
+                
+                var outgoing = [Line]()
+                
+                if position < self.count - 1 {
+                    outgoing = [Line(begins: index, ends: index, isShift: false)]
+                }
+                
                 treeBranches.append(
-                    CommitTreeBranch(incoming: incoming, outgoing: [Line(begins: index, ends: index, isShift: false)], hasBubble: true, trace: path.trace)
+                    CommitTreeBranch(incoming: incoming, outgoing: outgoing, hasBubble: true, trace: path.trace)
                 )
             case .fallThrough(_, _, let opens, let shiftBy):
                 let income = [Line(begins: index, ends: index, isShift: false)]
@@ -274,6 +283,17 @@ public class CommitList: BidirectionalCollection {
         var shiftWaiters = [Int]()
         var shifts = 0
         
+        if !foundParents.contains(currentCommit.objectHash) {
+            paths.append(
+                GitPath(
+                    currentStep: nil,
+                    nextStep: .begins(commit: currentCommit),
+                    trace: newTrace(),
+                    position: position
+                )
+            )
+        }
+        
         paths.filter {
             switch $0.currentStep {
             case .closes(_, _): return false
@@ -287,43 +307,27 @@ public class CommitList: BidirectionalCollection {
         let parents = getParents(for: currentCommit)
         
         guard !parents.isEmpty else {
-            return newPaths
+            return newPaths.map { path in
+                GitPath(
+                    currentStep: path.nextStep,
+                    nextStep: nil,
+                    trace: path.trace,
+                    position: path.position
+                )
+            }
         }
         
-        if position == 0 {
-            newPaths.append(
-                GitPath(
-                    currentStep: .commit(commit: currentCommit),
-                    nextStep: getNextStep(for: parents[0], nextCommit: nextCommit),
-                    trace: newTrace(),
-                    position: position
-                )
-            )
-            for parent in parents.dropFirst() {
-                newPaths.append(
-                    GitPath(
-                        currentStep: .opens(from: 0, shiftBy: 0),
-                        nextStep: getNextStep(for: parent, nextCommit: nextCommit),
-                        trace: newTrace(),
-                        position: position
-                    )
-                )
-            }
-        } else {
-        
-            for (index, path) in paths.enumerated() {
-                calculateNext(
-                    of: path,
-                    currentCommit: currentCommit,
-                    nextCommit: nextCommit,
-                    index: index,
-                    position: position,
-                    standingOpenings: &standingOpenings,
-                    shiftWaiters: &shiftWaiters,
-                    shifts: &shifts,
-                    into: &newPaths)
-            }
-            
+        for (index, path) in paths.enumerated() {
+            calculateNext(
+                of: path,
+                currentCommit: currentCommit,
+                nextCommit: nextCommit,
+                index: index,
+                position: position,
+                standingOpenings: &standingOpenings,
+                shiftWaiters: &shiftWaiters,
+                shifts: &shifts,
+                into: &newPaths)
         }
         
         for (index, path) in newPaths.enumerated() {
@@ -340,7 +344,11 @@ public class CommitList: BidirectionalCollection {
     }
     
     private func getParents(for commit: Commit) -> [Commit] {
-        commit.parents.map { commitDict[$0] }.filter { $0 != nil }.map { $0! }
+        commit.parents.map {
+            let commit = commitDict[$0]
+            self.foundParents.insert(commit?.objectHash ?? "")
+            return commit
+        }.filter { $0 != nil }.map { $0! }
     }
     
     private func getNextStep(for commit: Commit?, nextCommit: Commit?) -> PathStep {
@@ -425,7 +433,7 @@ public class CommitList: BidirectionalCollection {
         into result: inout [GitPath]
     ) {
         switch path.nextStep {
-        case .commit(let commit):
+        case .commit(let commit), .begins(let commit):
             if commit == currentCommit {
                 
                 var currentPathParent: Commit? = nil

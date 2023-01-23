@@ -239,11 +239,17 @@ public class CommitList: BidirectionalCollection {
                 treeBranches.append(
                     CommitTreeBranch(incoming: incoming, outgoing: [Line(begins: index, ends: index, isShift: false)], hasBubble: true, trace: path.trace)
                 )
-            case .fallThrough(_, _, _, let shiftBy):
-                var income = [Line(begins: index, ends: index, isShift: false)]
+            case .fallThrough(_, _, let opens, let shiftBy):
+                let income = [Line(begins: index, ends: index, isShift: false)]
+                
+                var outgoing = [Line(begins: index, ends: index - shiftBy, isShift: shiftBy != 0)]
+                
+                if let opens = opens {
+                    outgoing.append(Line(begins: opens, ends: index, isShift: true))
+                }
                 
                 treeBranches.append(
-                    CommitTreeBranch(incoming: income, outgoing: [Line(begins: index, ends: index - shiftBy, isShift: shiftBy != 0)], hasBubble: false, trace: path.trace)
+                    CommitTreeBranch(incoming: income, outgoing: outgoing, hasBubble: false, trace: path.trace)
                 )
             default: break
             }
@@ -318,6 +324,14 @@ public class CommitList: BidirectionalCollection {
                     into: &newPaths)
             }
             
+        }
+        
+        for (index, path) in newPaths.enumerated() {
+            switch path.nextStep {
+            case let .fallThrough(toCommit, closes, _, shiftBy):
+                path.nextStep = .fallThrough(toCommit: toCommit, closes: closes, opens: standingOpenings[index], shiftBy: shiftBy)
+            default: break
+            }
         }
         
         paths = newPaths

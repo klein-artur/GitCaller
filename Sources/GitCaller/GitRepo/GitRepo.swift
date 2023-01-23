@@ -22,6 +22,7 @@ extension GitRepo: Repository {
             .log
             .branchName(branchName)
             .pretty(.format(LogResultParser.prettyFormat))
+            .topoOrder()
             .finalResult()
     }
     
@@ -30,6 +31,7 @@ extension GitRepo: Repository {
             .log
             .commitHash(commitHash)
             .pretty(.format(LogResultParser.prettyFormat))
+            .topoOrder()
             .finalResult()
     }
     
@@ -37,6 +39,7 @@ extension GitRepo: Repository {
         try await Git()
             .log
             .pretty(.format(LogResultParser.prettyFormat))
+            .topoOrder()
             .finalResult()
     }
     

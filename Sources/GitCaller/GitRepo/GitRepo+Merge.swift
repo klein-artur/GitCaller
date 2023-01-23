@@ -36,15 +36,15 @@ extension GitRepo {
         self.needsUpdate()
     }
     
-    public func useOurs(path: String) async throws -> CheckoutResult {
+    public func useOurs(path: String) async throws {
         try await use(path: path, theirs: false)
     }
     
-    public func useTheirs(path: String) async throws -> CheckoutResult {
+    public func useTheirs(path: String) async throws {
         try await use(path: path, theirs: true)
     }
     
-    private func use(path: String, theirs: Bool) async throws -> CheckoutResult {
+    private func use(path: String, theirs: Bool) async throws {
         let result = try await Git().checkout
             .conditional(theirs) { command in
                 command.theirs()
@@ -55,8 +55,10 @@ extension GitRepo {
             .path(path)
             .finalResult()
         if result.didChange {
+            try await self.stage(file: path)
             objectWillChange.send()
+        } else {
+            throw ParseError(type: .issueParsing, rawOutput: "Something went wrong staging the file")
         }
-        return result
     }
 }

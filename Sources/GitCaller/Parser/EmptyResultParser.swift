@@ -58,7 +58,8 @@ extension CommandCommit: Parsable {
     public var parser: EmptyResultParser {
         return EmptyResultParser(
             additionalFailureRegexes: [
-                "Aborting commit due to empty commit message.\n"
+                "Aborting commit due to empty commit message.\n",
+                "error: Committing is not possible because you have unmerged files"
             ]
         )
     }

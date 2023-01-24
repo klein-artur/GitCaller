@@ -8,7 +8,7 @@
 import Foundation
 
 /// Git command for git merge
-public final class CommandMerge: Command, HasBranchnameParameter, HasAbortParameter
+public final class CommandMerge: Command, HasBranchnameParameter, HasAbortParameter, HasNoFFParameter, HasMinusMinusParameter, HasContinueParameter
 {
     public override var command: String {
         "merge"

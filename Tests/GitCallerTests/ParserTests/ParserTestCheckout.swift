@@ -107,6 +107,21 @@ final class ParserTestCheckout: XCTestCase {
             XCTAssertTrue(checkout.didChange)
         }
     }
+    
+    func testNormalUpdate() throws {
+        // given
+        let input = """
+        Updated 1 path from the index
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { checkout in
+            XCTAssertTrue(checkout.didChange)
+        }
+    }
 
 }
 

@@ -68,10 +68,17 @@ public protocol Repository: ObservableObject {
     func needsUpdate()
     
     /// Starts a merge of the branch into the current one.
-    func merge(branch: String) async throws
+    func merge(branch: String, noFF: Bool) async throws
+    
+    /// Uses either theirs or ours in a merge or rebase context.
+    func useOurs(path: String) async throws
+    func useTheirs(path: String) async throws
     
     /// Aborts the current running merge
     func abortMerge() async throws
+    
+    /// Continue the current running merge
+    func continueMerge() async throws
     
     /// Opens the mergetool on a merge conflict.
     func mergetool(file: String, tool: String) async throws
@@ -95,6 +102,10 @@ public extension Repository {
     
     func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult  {
         return try await unstage(file: path, hunk: number)
+    }
+    
+    func merge(branch: String, noFF: Bool = false) async throws {
+        return try await merge(branch: branch, noFF: noFF)
     }
     
     func mergetool(file: String, tool: String = "opendiff") async throws {

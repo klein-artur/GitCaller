@@ -122,7 +122,7 @@ extension Parsable where Success == ParserType.Success {
     }
 }
 
-extension Parsable where Success == EmptyResult {
+extension Parsable {
     
     public func ignoreResult(predefinedInput: String? = nil) async throws {
         _ = try await finalResult(predefinedInput: predefinedInput)

@@ -90,6 +90,11 @@ extension GitRepo: Repository {
         return result
     }
     
+    public func revertDeleted(unstagedFile path: String) async throws {
+        try await Git().checkout.branchName("HEAD").path(path).ignoreResult()
+        needsUpdate()
+    }
+    
     public func fetch() async throws {
         try await Git().fetch.ignoreResult()
         objectWillChange.send()

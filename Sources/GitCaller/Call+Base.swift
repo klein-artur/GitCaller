@@ -44,6 +44,9 @@ public protocol Repository: ObservableObject {
     /// reverts unstaged files.
     func revert(unstagedFile path: String) async throws -> RestoreResult
     
+    /// reverts unstaged files.
+    func revertDeleted(unstagedFile path: String) async throws
+    
     /// Commits the currently staged files with the given message.
     func commit(message: String) async throws
     

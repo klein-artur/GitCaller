@@ -122,6 +122,51 @@ final class ParserTestCheckout: XCTestCase {
             XCTAssertTrue(checkout.didChange)
         }
     }
+    
+    func testNormalMultipleUpdate() throws {
+        // given
+        let input = """
+        Updated 3 paths from the index
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { checkout in
+            XCTAssertTrue(checkout.didChange)
+        }
+    }
+    
+    func testRevertDeleted() throws {
+        // given
+        let input = """
+        Updated 1 path from the asdfasdf
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { checkout in
+            XCTAssertTrue(checkout.didChange)
+        }
+    }
+    
+    func testRevertMultipleDeleted() throws {
+        // given
+        let input = """
+        Updated 3 paths from the asdfasdf
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { checkout in
+            XCTAssertTrue(checkout.didChange)
+        }
+    }
 
 }
 

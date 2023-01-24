@@ -126,7 +126,7 @@ final class ParserTestCheckout: XCTestCase {
     func testNormalMultipleUpdate() throws {
         // given
         let input = """
-        Updated 3 paths from the index
+        Updated 3 paths from index
         """
         
         // when
@@ -141,7 +141,7 @@ final class ParserTestCheckout: XCTestCase {
     func testRevertDeleted() throws {
         // given
         let input = """
-        Updated 1 path from the asdfasdf
+        Updated 1 path from asdfasdf
         """
         
         // when
@@ -156,7 +156,7 @@ final class ParserTestCheckout: XCTestCase {
     func testRevertMultipleDeleted() throws {
         // given
         let input = """
-        Updated 3 paths from the asdfasdf
+        Updated 3 paths from asdfasdf
         """
         
         // when

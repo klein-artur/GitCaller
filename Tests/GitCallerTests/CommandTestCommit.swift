@@ -15,21 +15,21 @@ final class CommandTestCommit: XCTestCase {
         let command = Git()
             .commit
         
-        XCTAssertEqual(command.resolve(), "git commit")
+        XCTAssertEqual(command.toString(), "git commit")
     }
     
     func testGitCommitWithPath() throws {
         let command = Git()
             .commit
             .path("some/test way/path")
-        XCTAssertEqual(command.resolve(), "git commit some/test\\ way/path")
+        XCTAssertEqual(command.toString(), "git commit some/test\\ way/path")
     }
     
     func testGitCommitWithMessage() throws {
         let command = Git()
             .commit
             .message("This is some test")
-        XCTAssertEqual(command.resolve(), "git commit --message=\"This is some test\"")
+        XCTAssertEqual(command.toString(), "git commit --message=\"This is some test\"")
     }
     
     func testGitCommitWithMultipleMessages() throws {
@@ -37,7 +37,7 @@ final class CommandTestCommit: XCTestCase {
             .commit
             .message("This is some test")
             .message("This is some other test")
-        XCTAssertEqual(command.resolve(), "git commit --message=\"This is some test\" --message=\"This is some other test\"")
+        XCTAssertEqual(command.toString(), "git commit --message=\"This is some test\" --message=\"This is some other test\"")
     }
     
     func testGitCommitWithPathAndMessage() throws {
@@ -45,7 +45,7 @@ final class CommandTestCommit: XCTestCase {
             .commit
             .path("some/test way/path")
             .message("This is some test")
-        XCTAssertEqual(command.resolve(), "git commit some/test\\ way/path --message=\"This is some test\"")
+        XCTAssertEqual(command.toString(), "git commit some/test\\ way/path --message=\"This is some test\"")
     }
 
 }

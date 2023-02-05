@@ -11,16 +11,16 @@ import XCTest
 final class CommandTestsInit: XCTestCase {
     
     func testInitCommand() throws {
-        XCTAssertEqual(Git().initialize.resolve(), "git init")
+        XCTAssertEqual(Git().initialize.toString(), "git init")
     }
     
     func testInitQuietCommand() throws {
-        XCTAssertEqual(Git().initialize.quiet().resolve(), "git init --quiet")
+        XCTAssertEqual(Git().initialize.quiet().toString(), "git init --quiet")
     }
     
     func testInitInitialBranchName() throws {
         XCTAssertEqual(
-            Git().initialize.initialBranch(name: "test_branch").resolve(),
+            Git().initialize.initialBranch(name: "test_branch").toString(),
             "git init --initial-branch=test_branch"
         )
     }
@@ -32,7 +32,7 @@ final class CommandTestsInit: XCTestCase {
             .quiet()
         
         XCTAssertEqual(
-            command.resolve(),
+            command.toString(),
             "git init --initial-branch=test_branch --quiet"
         )
     }

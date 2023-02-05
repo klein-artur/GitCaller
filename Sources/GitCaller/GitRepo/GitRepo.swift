@@ -17,10 +17,12 @@ extension GitRepo: Repository {
         try await Git().clone(url: url).finalResult()
     }
     
-    public func getLog(branchName: String) async throws -> LogResult {
+    public func getLog(branchNames: [String]) async throws -> LogResult {
         try await Git()
             .log
-            .branchName(branchName)
+            .forEach(branchNames, alternator: { command, branchName in
+                command.branchName(branchName)
+            })
             .pretty(.format(LogResultParser.prettyFormat))
             .topoOrder()
             .finalResult()

@@ -62,10 +62,10 @@ public protocol Parsable: CommandSpec {
     var parser: ParserType { get }
     
     /// Parses only the final result of the call and returns it.
-    func finalResult(predefinedInput: String?) async throws -> Success
+    func finalResult(inputPipe: Pipe?) async throws -> Success
     
     /// Parses contiiously until the stream finishes and emits every parse state.
-    func results(predefinedInput: String?) -> AnyPublisher<Self.Success, ParseError>
+    func results(inputPipe: Pipe?) -> AnyPublisher<Self.Success, ParseError>
 }
 
 /// A parser base class to parse git results.
@@ -106,8 +106,8 @@ extension Parsable where Success == ParserType.Success {
             .eraseToAnyPublisher()
     }
     
-    public func finalResult(predefinedInput: String? = nil) async throws -> Success {
-        let result = try await self.runAsync(predefinedInput: predefinedInput)
+    public func finalResult(inputPipe: Pipe? = nil) async throws -> Success {
+        let result = try await self.runAsync(inputPipe: inputPipe)
         let parsedResult = parser.parse(result: result)
         switch parsedResult {
         case let .success(parsedElement):
@@ -117,15 +117,15 @@ extension Parsable where Success == ParserType.Success {
         }
     }
     
-    public func results(predefinedInput: String? = nil) -> AnyPublisher<Success, ParseError> {
-        return doParsing(on: self.run(predefinedInput: predefinedInput))
+    public func results(inputPipe: Pipe? = nil) -> AnyPublisher<Success, ParseError> {
+        return doParsing(on: self.run(inputPipe: inputPipe))
     }
 }
 
 extension Parsable {
     
-    public func ignoreResult(predefinedInput: String? = nil) async throws {
-        _ = try await finalResult(predefinedInput: predefinedInput)
+    public func ignoreResult(inputPipe: Pipe? = nil) async throws {
+        _ = try await finalResult(inputPipe: inputPipe)
     }
     
 }

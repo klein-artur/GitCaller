@@ -14,22 +14,22 @@ extension GitRepo {
             .conditional(staged) { command in
                 command.staged()
             }
-            .ifLet(path) { command, path in
+            .conditionalLet(path) { command, path in
                 command.path(path)
             }
-            .ifLet(rightPath) { command, path in
+            .conditionalLet(rightPath) { command, path in
                 command.path(path)
             }
             .finalResult()
     }
     
-    public func stage(file path: String?, hunk number: Int? = nil) async throws {
+    public func stage(file path: String?, hunk number: Int? = nil, lines: [Int]? = nil) async throws {
         let command = Git()
             .add
             .conditional(path == nil, alternator: { command in
                 command.all()
             })
-            .ifLet(path, alternator: { command, path in
+            .conditionalLet(path, alternator: { command, path in
                 command
                     .conditional(number != nil, alternator: { command in
                         command.patch()
@@ -38,10 +38,15 @@ extension GitRepo {
                     .path(path)
             })
                 
-                if let number = number {
-                    let input = "g\n\(number + 1)\ny\nd\n"
-                
-                try await command.ignoreResult(predefinedInput: input)
+            if let number = number {
+                if let lines = lines {
+                    
+                    
+                } else {
+                    let pipe = Pipe()
+                    try await command.ignoreResult(inputPipe: pipe)
+                    try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
+                }
             } else {
                 try await command.ignoreResult()
             }
@@ -61,9 +66,9 @@ extension GitRepo {
         let result: RestoreResult
                 
         if let number = number {
-            let input = "g\n\(number + 1)\ny\nd\n"
-            
-            result = try await command.finalResult(predefinedInput: input)
+            let pipe = Pipe()
+            result = try await command.finalResult(inputPipe: pipe)
+             try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
         } else {
             result = try await command.finalResult()
         }

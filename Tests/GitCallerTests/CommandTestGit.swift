@@ -12,7 +12,7 @@ import XCTest
 final class CommandTestGit: XCTestCase {
 
     func testGit() throws {
-        XCTAssertEqual(Git().resolve(), "git")
+        XCTAssertEqual(Git().toString(), "git")
     }
 
 }

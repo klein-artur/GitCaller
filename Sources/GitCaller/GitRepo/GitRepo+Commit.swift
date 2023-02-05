@@ -41,11 +41,11 @@ extension GitRepo {
             if let number = number {
                 if let lines = lines {
                     
-                    
                 } else {
                     let pipe = Pipe()
-                    try await command.ignoreResult(inputPipe: pipe)
+                    async let result: () = command.ignoreResult(inputPipe: pipe)
                     try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
+                    try await result
                 }
             } else {
                 try await command.ignoreResult()
@@ -67,8 +67,9 @@ extension GitRepo {
                 
         if let number = number {
             let pipe = Pipe()
-            result = try await command.finalResult(inputPipe: pipe)
-             try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
+            async let waitingResult = command.finalResult(inputPipe: pipe)
+            try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
+            result = try await waitingResult
         } else {
             result = try await command.finalResult()
         }

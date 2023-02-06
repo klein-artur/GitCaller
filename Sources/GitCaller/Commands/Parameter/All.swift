@@ -14,6 +14,10 @@ public protocol HasAllParameter: Parametrable {
 
 internal class All: Parameter {
     var command: String = "--all"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasAllParameter {

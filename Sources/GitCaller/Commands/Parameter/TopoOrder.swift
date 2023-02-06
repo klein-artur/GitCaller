@@ -14,6 +14,10 @@ public protocol HasTopoOrderParameter: Parametrable {
 
 internal class TopoOrder: Parameter {
     var command: String = "--topo-order"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasTopoOrderParameter {

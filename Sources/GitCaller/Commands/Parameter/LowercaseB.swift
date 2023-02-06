@@ -18,6 +18,10 @@ internal class LowercaseB: Parameter {
     init() {
         self.command = "-b"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasLowercaseBParameter {

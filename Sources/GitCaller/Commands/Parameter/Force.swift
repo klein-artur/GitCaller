@@ -14,6 +14,10 @@ public protocol HasForceParameter: Parametrable {
 
 internal class Force: Parameter {
     var command: String = "--force"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasForceParameter {

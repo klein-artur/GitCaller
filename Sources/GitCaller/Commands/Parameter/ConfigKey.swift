@@ -31,6 +31,10 @@ internal class ConfigKeyParameter: Parameter {
         }
         return "\(key.rawValue)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasConfigKeyParameter {

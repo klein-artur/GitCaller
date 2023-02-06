@@ -14,6 +14,10 @@ public protocol HasQuietParameter: Parametrable {
 
 internal class Quiet: Parameter {
     var command: String = "--quiet"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasQuietParameter {

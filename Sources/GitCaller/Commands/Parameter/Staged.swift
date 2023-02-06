@@ -14,6 +14,10 @@ public protocol HasStagedParameter: Parametrable {
 
 internal class Staged: Parameter {
     var command: String = "--staged"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasStagedParameter {

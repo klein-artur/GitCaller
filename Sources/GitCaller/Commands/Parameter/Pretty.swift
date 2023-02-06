@@ -16,7 +16,7 @@ public enum PrettyFormat {
     case raw
     case format(String)
     
-    fileprivate var value: String {
+    fileprivate func value(forString: Bool) -> String {
         switch self {
         case .oneline: return "oneline"
         case .short: return "short"
@@ -25,7 +25,11 @@ public enum PrettyFormat {
         case .fuller: return "fuller"
         case .raw: return "raw"
         case let .format(formatting):
-            return "format:\"\(formatting)\""
+            if forString {
+                return "format:\"\(formatting)\""
+            } else {
+                return "format:\(formatting)"
+            }
         }
     }
 }
@@ -43,7 +47,11 @@ internal class Pretty: Parameter {
     }
     
     var command: String {
-        "--pretty=\(value.value)"
+        getCommand(forString: false)
+    }
+    
+    func getCommand(forString: Bool) -> String {
+        return "--pretty=\(value.value(forString: forString))"
     }
 }
 

@@ -14,6 +14,10 @@ public protocol HasContinueParameter: Parametrable {
 
 internal class Continue: Parameter {
     var command: String = "--continue"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasContinueParameter {

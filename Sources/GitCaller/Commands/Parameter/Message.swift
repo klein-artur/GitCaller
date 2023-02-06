@@ -20,7 +20,15 @@ internal class Message: Parameter {
     }
     
     var command: String {
-        "--message=\"\(message)\""
+        getCommand(forString: false)
+    }
+    
+    func getCommand(forString: Bool) -> String {
+        if forString {
+            return "--message=\"\(message)\""
+        } else {
+            return "--message=\(message)"
+        }
     }
 }
 

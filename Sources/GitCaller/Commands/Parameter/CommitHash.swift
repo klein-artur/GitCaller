@@ -18,6 +18,10 @@ internal class CommitHash: Parameter {
     init(_ hash: String) {
         self.command = hash
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasCommitHashParameter {

@@ -27,6 +27,10 @@ internal class PathFormat: Parameter {
     var command: String {
         "--path-format=\(value.rawValue)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasPathFormatParameter {

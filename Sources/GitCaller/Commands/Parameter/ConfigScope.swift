@@ -28,6 +28,10 @@ internal class ConfigScopeParameter: Parameter {
     var command: String {
         "\(value.rawValue)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasConfigScopeParameter {

@@ -14,6 +14,10 @@ public protocol HasMinusMinusParameter: Parametrable {
 
 internal class MinusMinus: Parameter {
     var command: String = "--"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasMinusMinusParameter {

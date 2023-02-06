@@ -28,6 +28,10 @@ internal class Decorate: Parameter {
     var command: String {
         "--decorate=\(value.rawValue)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasDecorateParameter {

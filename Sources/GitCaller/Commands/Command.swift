@@ -18,7 +18,7 @@ public protocol CommandSpec {
     func toString() -> String
     
     // Resolves the command into a string array representing the argumgents of the git command.
-    func resolve(excludeGit: Bool) -> [String]
+    func resolve(excludeGit: Bool, forString: Bool) -> [String]
     
     /// Applies the alternator if the condition is true.
     func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self
@@ -31,7 +31,7 @@ public protocol CommandSpec {
 }
 
 extension CommandSpec {
-    public func resolve(excludeGit: Bool = true) -> [String] {
+    public func resolve(excludeGit: Bool = true, forString: Bool = false) -> [String] {
         if let rawCommand = self as? RawCommand {
             var cleanedCommand = rawCommand.splitCommandLineArguments()
             if cleanedCommand.first == "git" {
@@ -41,7 +41,7 @@ extension CommandSpec {
         } else  {
             let (commands, parameter) = internalResolve()
             
-            return commands.filter({ !excludeGit || $0 != "git" }) + parameter.map { $0.command }
+            return commands.filter({ !excludeGit || $0 != "git" }) + parameter.map { $0.getCommand(forString: forString) }
         }
     }
     
@@ -64,7 +64,7 @@ extension CommandSpec {
     }
     
     public func toString() -> String {
-        self.resolve(excludeGit: false).joined(separator: " ")
+        self.resolve(excludeGit: false, forString: true).joined(separator: " ")
     }
     
     public func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self {

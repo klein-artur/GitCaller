@@ -20,7 +20,9 @@ extension GitRepo: Repository {
     public func getLog(branchNames: [String]) async throws -> LogResult {
         try await Git()
             .log
-            .branchName(<#T##branchName: String##String#>)
+            .forEach(branchNames, alternator: { command, branchName in
+                command.branchName(branchName)
+            })
             .pretty(.format(LogResultParser.prettyFormat))
             .topoOrder()
             .finalResult()

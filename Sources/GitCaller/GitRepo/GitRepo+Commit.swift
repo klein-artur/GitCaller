@@ -38,22 +38,25 @@ extension GitRepo {
                     .path(path)
             })
                 
-            if let number = number {
-                if let lines = lines {
-                    
-                } else {
-                    let pipe = Pipe()
-                    async let result: () = command.ignoreResult(inputPipe: pipe)
-                    try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
-                    try await result
-                }
-            } else {
-                try await command.ignoreResult()
-            }
+        if let number = number {
+            let pipe = Pipe()
+            async let result: () = command.ignoreResult(inputPipe: pipe)
+            
+            try await self.handleLineStaging(
+                pipe: pipe,
+                number: number,
+                lines: lines,
+                staging: true
+            )
+            
+            try await result
+        } else {
+            try await command.ignoreResult()
+        }
         objectWillChange.send()
     }
     
-    public func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult {
+    public func unstage(file path: String, hunk number: Int? = nil, lines: [Int]? = nil) async throws -> RestoreResult {
         let command = Git()
             .restore
             .staged()
@@ -68,7 +71,14 @@ extension GitRepo {
         if let number = number {
             let pipe = Pipe()
             async let waitingResult = command.finalResult(inputPipe: pipe)
-            try pipe.putIn(content: "g\n\(number + 1)\ny\nd")
+            
+            try await self.handleLineStaging(
+                pipe: pipe,
+                number: number,
+                lines: lines,
+                staging: false
+            )
+            
             result = try await waitingResult
         } else {
             result = try await command.finalResult()
@@ -77,6 +87,42 @@ extension GitRepo {
         objectWillChange.send()
                 
         return result
+    }
+    
+    private func handleLineStaging(pipe: Pipe, number: Int, lines: [Int]?, staging: Bool) async throws {
+        
+        try await Task.sleep(for: .milliseconds(30))
+        try pipe.putIn(content: "g")
+        try await Task.sleep(for: .milliseconds(30))
+        try pipe.putIn(content: "\(number + 1)")
+        
+        guard let lines = lines else {
+            try await Task.sleep(for: .milliseconds(30))
+            try pipe.putIn(content: "y")
+            try await Task.sleep(for: .milliseconds(10))
+            try pipe.putIn(content: "d")
+            return
+        }
+        try await Task.sleep(for: .milliseconds(10))
+        try pipe.putIn(content: "e")
+        
+        try await Task.sleep(for: .milliseconds(10))
+        
+        let gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
+        let filePath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/addp-hunk-edit.diff"
+        
+        let content = try String(contentsOfFile: filePath)
+        try FileManager.default.removeItem(atPath: filePath)
+        let newHunk = staging ? content.editHunkStage(lines: lines) : content.editHunkUnstage(lines: lines)
+        try newHunk.write(toFile: filePath, atomically: false, encoding: .utf8)
+        
+        try await Task.sleep(for: .milliseconds(10))
+        
+        try pipe.putIn(content: "done")
+        
+        try await Task.sleep(for: .milliseconds(10))
+        
+        try pipe.putIn(content: "q")
     }
     
     public func commit(message: String) async throws {

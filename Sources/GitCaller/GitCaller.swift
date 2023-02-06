@@ -20,17 +20,15 @@ private func runTask(arguments: [String], inputPipe: Pipe?, onReceive: ((String)
     
     let outHandle = pipe.fileHandleForReading
 
-    if let onReceive = onReceive, let onCompletion = onCompletion {
-        pipe.fileHandleForReading.readabilityHandler = { handle in
-            let data = handle.availableData
-            if data.isEmpty {
-                handle.readabilityHandler = nil
-                onCompletion()
-            } else {
-                if let str = String(data: data, encoding: .utf8) {
-                    print(str)
-                    onReceive(str)
-                }
+    pipe.fileHandleForReading.readabilityHandler = { handle in
+        let data = handle.availableData
+        if data.isEmpty {
+            handle.readabilityHandler = nil
+            onCompletion?()
+        } else {
+            if let str = String(data: data, encoding: .utf8) {
+                print(str)
+                onReceive?(str)
             }
         }
     }

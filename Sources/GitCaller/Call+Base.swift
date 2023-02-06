@@ -39,7 +39,7 @@ public protocol Repository: ObservableObject {
     func stage(file path: String?, hunk number: Int?, lines: [Int]?) async throws
     
     /// unstages a given file, if no path given adds all.
-    func unstage(file path: String, hunk number: Int?) async throws -> RestoreResult
+    func unstage(file path: String, hunk number: Int?, lines: [Int]?) async throws -> RestoreResult
     
     /// reverts unstaged files.
     func revert(unstagedFile path: String) async throws -> RestoreResult
@@ -112,8 +112,8 @@ public extension Repository {
         return try await stage(file: path, hunk: number, lines: lines)
     }
     
-    func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult  {
-        return try await unstage(file: path, hunk: number)
+    func unstage(file path: String, hunk number: Int? = nil, lines: [Int]? = nil) async throws -> RestoreResult  {
+        return try await unstage(file: path, hunk: number, lines: lines)
     }
     
     func merge(branch: String, noFF: Bool = false) async throws {

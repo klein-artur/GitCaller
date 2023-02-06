@@ -36,7 +36,7 @@ final class CommandTestIfStatements: XCTestCase {
         
         let someOptional: Git? = Git()
         
-        let newCommand = command.ifLet(someOptional) { commit, theOptional in
+        let newCommand = command.conditionalLet(someOptional) { commit, theOptional in
             commit.all()
         }
         
@@ -48,7 +48,7 @@ final class CommandTestIfStatements: XCTestCase {
         
         let someOptional: Git? = nil
         
-        let newCommand = command.ifLet(someOptional) { commit, theOptional in
+        let newCommand = command.conditionalLet(someOptional) { commit, theOptional in
             commit.all()
         }
         

@@ -44,7 +44,7 @@ public class CheckoutResultParser: GitParser, Parser {
             checkoutResult = CheckoutResult(originalOutput: result, didChange: false)
         } else if result.contains(rgx: #"branch\s.* set up to track .*\nSwitched to a new branch .*"#) {
             checkoutResult = CheckoutResult(originalOutput: result, didChange: true)
-        } else if result.contains(rgx: #"Updated [0-9]+ path from the index"#) {
+        } else if result.contains(rgx: #"Updated [0-9]+ path(?:s)? from .+"#) {
             checkoutResult = CheckoutResult(originalOutput: result, didChange: true)
         } else {
             return .failure(ParseError(type: .issueParsing, rawOutput: result))

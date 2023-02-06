@@ -15,7 +15,7 @@ public protocol Repository: ObservableObject {
     func clone(url: String) async throws -> CloneResult
     
     /// Returns the commits
-    func getLog(branchName: String) async throws -> LogResult
+    func getLog(branchNames: [String]) async throws -> LogResult
     
     /// Returns the commits
     func getLog(commitHash: String) async throws -> LogResult
@@ -36,13 +36,16 @@ public protocol Repository: ObservableObject {
     func delete(branch: Branch, force: Bool) async throws -> BranchResult
     
     /// Adds a given file, if no path given adds all.
-    func stage(file path: String?, hunk number: Int?) async throws
+    func stage(file path: String?, hunk number: Int?, lines: [Int]?) async throws
     
     /// unstages a given file, if no path given adds all.
-    func unstage(file path: String, hunk number: Int?) async throws -> RestoreResult
+    func unstage(file path: String, hunk number: Int?, lines: [Int]?) async throws -> RestoreResult
     
     /// reverts unstaged files.
     func revert(unstagedFile path: String) async throws -> RestoreResult
+    
+    /// reverts unstaged files.
+    func revertDeleted(unstagedFile path: String) async throws
     
     /// Commits the currently staged files with the given message.
     func commit(message: String) async throws
@@ -85,6 +88,15 @@ public protocol Repository: ObservableObject {
     
     /// Returns the commit message for a merge if set.
     func getMergeCommitMessage() async throws -> String
+    
+    /// Gets the config for the given key in the given scope.
+    func getConfig(scope: ConfigScope, key: ConfigKey) async throws -> String
+    
+    /// Sets the config for the given key in the given scope.
+    func setConfig(scope: ConfigScope, key: ConfigKey, value: String) async throws
+    
+    /// Resets the config for the given key in the given scope.
+    func unsetConfig(scope: ConfigScope, key: ConfigKey) async throws
 }
 
 public extension Repository {
@@ -96,12 +108,12 @@ public extension Repository {
         return try await diff(path: path, rightPath: rightPath)
     }
     
-    func stage(file path: String?, hunk number: Int? = nil) async throws {
-        return try await stage(file: path, hunk: number)
+    func stage(file path: String?, hunk number: Int? = nil, lines: [Int]? = nil) async throws {
+        return try await stage(file: path, hunk: number, lines: lines)
     }
     
-    func unstage(file path: String, hunk number: Int? = nil) async throws -> RestoreResult  {
-        return try await unstage(file: path, hunk: number)
+    func unstage(file path: String, hunk number: Int? = nil, lines: [Int]? = nil) async throws -> RestoreResult  {
+        return try await unstage(file: path, hunk: number, lines: lines)
     }
     
     func merge(branch: String, noFF: Bool = false) async throws {

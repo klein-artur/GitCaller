@@ -14,47 +14,57 @@ public protocol CommandSpec {
     /// The command as a string.
     var command: String { get }
     
-    /// resolves the command
-    func resolve() -> String
+    /// returns the command as a string.
+    func toString() -> String
+    
+    // Resolves the command into a string array representing the argumgents of the git command.
+    func resolve(excludeGit: Bool) -> [String]
     
     /// Applies the alternator if the condition is true.
     func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self
     
     /// Applies the alternator if the optional is not nil, passes the object to the alternator.
-    func ifLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self
+    func conditionalLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self
+    
+    /// Applies the alternator if the optional is not nil, passes the object to the alternator.
+    func forEach<T>(_ list: Array<T>, alternator: (Self, T) -> Self) -> Self
 }
 
 extension CommandSpec {
-    public func resolve() -> String {
-        let (command, parameter) = internalResolve()
-        let parameterString = parameter.map({ $0.command }).joined(separator: " ")
-        
-        if !parameterString.isEmpty {
-            return "\(command) \(parameterString)"
-        } else {
-            return command
+    public func resolve(excludeGit: Bool = true) -> [String] {
+        if let rawCommand = self as? RawCommand {
+            var cleanedCommand = rawCommand.splitCommandLineArguments()
+            if cleanedCommand.first == "git" {
+                cleanedCommand.removeFirst()
+            }
+            return cleanedCommand
+        } else  {
+            let (commands, parameter) = internalResolve()
+            
+            return commands.filter({ !excludeGit || $0 != "git" }) + parameter.map { $0.command }
         }
     }
     
-    private func internalResolve() -> (String, [Parameter]) {
-        let resultCommand: String
-        if let preceeding = preceeding {
-            resultCommand = "\(preceeding.resolve()) \(command)"
-        } else {
-            resultCommand = command
+    private func internalResolve() -> ([String], [Parameter]) {
+        
+        var commands = [String]()
+        var parameter = [Parameter]()
+        
+        if let preceeding = self.preceeding {
+            (commands, parameter) = preceeding.internalResolve()
         }
         
-        var parameter: [Parameter] = []
-        
-        if let preceeding = self.preceeding as? (any Parametrable) {
-            parameter.append(contentsOf: preceeding.parameter)
-        }
+        commands.append(self.command)
         
         if let selfParametrable = self as? (any Parametrable) {
             parameter.append(contentsOf: selfParametrable.parameter)
         }
         
-        return (resultCommand, parameter)
+        return (commands, parameter)
+    }
+    
+    public func toString() -> String {
+        self.resolve(excludeGit: false).joined(separator: " ")
     }
     
     public func conditional(_ condition: Bool, alternator: (Self) -> Self) -> Self {
@@ -65,12 +75,20 @@ extension CommandSpec {
         }
     }
     
-    public func ifLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self {
+    public func conditionalLet<T>(_ optional: T?, alternator: (Self, T) -> Self) -> Self {
         if let opt = optional {
             return alternator(self, opt)
         } else {
             return self
         }
+    }
+    
+    public func forEach<T>(_ list: Array<T>, alternator: (Self, T) -> Self) -> Self {
+        var newCommand = self
+        for element in list {
+            newCommand = alternator(newCommand, element)
+        }
+        return newCommand
     }
 }
 

@@ -12,7 +12,7 @@ import XCTest
 final class CommandCloneTest: XCTestCase {
 
     func testClone() throws {
-        XCTAssertEqual(Git().clone(url: "someurl").resolve(), "git clone someurl")
+        XCTAssertEqual(Git().clone(url: "someurl").toString(), "git clone someurl")
     }
 
 }

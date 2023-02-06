@@ -12,7 +12,7 @@ import XCTest
 final class CommandTestCheckout: XCTestCase {
 
     func testBranchCommand() throws {
-        XCTAssertEqual(Git().checkout.resolve(), "git checkout")
+        XCTAssertEqual(Git().checkout.toString(), "git checkout")
     }
 
 }

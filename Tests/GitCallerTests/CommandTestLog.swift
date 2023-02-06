@@ -12,7 +12,7 @@ import XCTest
 final class CommandTestLog: XCTestCase {
     
     func testGitLog() throws {
-        XCTAssertEqual(Git().log.resolve(), "git log")
+        XCTAssertEqual(Git().log.toString(), "git log")
     }
 
 }

@@ -13,7 +13,7 @@ final class CommandTestAdd: XCTestCase {
 
     func testGitAdd() throws {
         XCTAssertEqual(
-            Git().add.resolve(),
+            Git().add.toString(),
             "git add"
         )
     }
@@ -21,7 +21,7 @@ final class CommandTestAdd: XCTestCase {
     func testGitAddWithPath() throws {
         let command = Git().add.path("path/to/file")
         XCTAssertEqual(
-            command.resolve(),
+            command.toString(),
             "git add path/to/file"
         )
     }
@@ -29,7 +29,7 @@ final class CommandTestAdd: XCTestCase {
     func testGitAddWithAllParam() throws {
         let command = Git().add.all()
         XCTAssertEqual(
-            command.resolve(),
+            command.toString(),
             "git add --all"
         )
     }
@@ -37,7 +37,7 @@ final class CommandTestAdd: XCTestCase {
     func testGitAddWithPathAndAllParam() throws {
         let command = Git().add.path("path/to/file").all()
         XCTAssertEqual(
-            command.resolve(),
+            command.toString(),
             "git add path/to/file --all"
         )
     }

@@ -14,6 +14,10 @@ public protocol HasGitDirParameter: Parametrable {
 
 internal class GitDir: Parameter {
     var command: String = "--git-dir"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasGitDirParameter {

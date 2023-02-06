@@ -14,6 +14,10 @@ public protocol HasNoFFParameter: Parametrable {
 
 internal class NoFF: Parameter {
     var command: String = "--no-ff"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasNoFFParameter {

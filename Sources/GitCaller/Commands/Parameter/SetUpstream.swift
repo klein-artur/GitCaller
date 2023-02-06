@@ -14,6 +14,10 @@ public protocol HasSetUpstreamParameter: Parametrable {
 
 internal class SetUpstream: Parameter {
     var command: String = "--set-upstream"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasSetUpstreamParameter {

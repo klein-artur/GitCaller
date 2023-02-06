@@ -14,6 +14,10 @@ public protocol HasNoColorParameter: Parametrable {
 
 internal class NoColor: Parameter {
     var command: String = "--no-color"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasNoColorParameter {

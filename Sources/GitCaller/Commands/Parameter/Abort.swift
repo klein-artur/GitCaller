@@ -15,6 +15,10 @@ public protocol HasAbortParameter: Parametrable {
 
 internal class Abort: Parameter {
     var command: String = "--abort"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasAbortParameter {

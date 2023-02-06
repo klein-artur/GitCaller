@@ -18,6 +18,10 @@ internal class UppercaseD: Parameter {
     init() {
         self.command = "-D"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasUppercaseDParameter {

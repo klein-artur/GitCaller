@@ -14,6 +14,10 @@ public protocol HasPatchParameter: Parametrable {
 
 internal class Patch: Parameter {
     var command: String = "--patch"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasPatchParameter {

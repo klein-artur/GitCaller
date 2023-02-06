@@ -9,6 +9,8 @@ import Foundation
 
 public protocol Parameter {
     var command: String { get }
+    
+    func getCommand(forString: Bool) -> String
 }
 
 public protocol Copyable {

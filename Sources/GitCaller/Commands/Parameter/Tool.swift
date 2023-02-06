@@ -18,6 +18,10 @@ internal class Tool: Parameter {
     init(_ toolName: String) {
         self.command = "--tool=\(toolName)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasToolParameter {

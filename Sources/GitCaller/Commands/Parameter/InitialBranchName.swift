@@ -22,6 +22,10 @@ internal class InitialBranchName: Parameter {
     var command: String {
         "--initial-branch=\(name)"
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasInitialBranchNameParameter {

@@ -19,6 +19,10 @@ internal class Path: Parameter {
         let finalPath = path.replacingOccurrences(of: " ", with: "\\ ")
         self.command = finalPath
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasPathParameter {

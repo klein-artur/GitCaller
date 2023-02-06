@@ -18,6 +18,10 @@ internal class RemoteName: Parameter {
     init(_ remoteName: String) {
         self.command = remoteName
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasRemoteNameParameter {

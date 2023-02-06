@@ -14,6 +14,10 @@ public protocol HasUnsetParameter: Parametrable {
 
 internal class Unset: Parameter {
     var command: String = "--unset"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasUnsetParameter {

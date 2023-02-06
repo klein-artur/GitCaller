@@ -133,7 +133,7 @@ class GitPath {
     }
 }
 
-public class CommitList: BidirectionalCollection {
+public class CommitList: BidirectionalCollection, RandomAccessCollection {
     
     public enum CommitListError: Error {
         case outOfBounds

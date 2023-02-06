@@ -14,6 +14,10 @@ public protocol HasRemotesParameter: Parametrable {
 
 internal class Remotes: Parameter {
     var command: String = "--remotes"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasRemotesParameter {

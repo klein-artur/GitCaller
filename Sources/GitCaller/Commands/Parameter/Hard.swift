@@ -14,6 +14,10 @@ public protocol HasHardParameter: Parametrable {
 
 internal class Hard: Parameter {
     var command: String = "--hard"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasHardParameter {

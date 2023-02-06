@@ -18,6 +18,10 @@ internal class BranchName: Parameter {
     init(_ branchName: String) {
         self.command = branchName
     }
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasBranchnameParameter {

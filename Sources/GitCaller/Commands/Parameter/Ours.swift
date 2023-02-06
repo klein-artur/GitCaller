@@ -14,6 +14,10 @@ public protocol HasOursParameter: Parametrable {
 
 internal class Ours: Parameter {
     var command: String = "--ours"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasOursParameter {

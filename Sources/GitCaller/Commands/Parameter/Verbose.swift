@@ -14,6 +14,10 @@ public protocol HasVerboseParameter: Parametrable {
 
 internal class Verbose: Parameter {
     var command: String = "--verbose"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasVerboseParameter {

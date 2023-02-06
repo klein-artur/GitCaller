@@ -14,6 +14,10 @@ public protocol HasTrackParameter: Parametrable {
 
 internal class Track: Parameter {
     var command: String = "--track"
+    
+    func getCommand(forString: Bool) -> String {
+        return command
+    }
 }
 
 extension HasTrackParameter {

@@ -110,6 +110,7 @@ extension CommandSpec {
     
     /// Runs the current command and returns a `Publisher` that emits the states of the process.
     public func run(inputPipe: Pipe? = nil) -> AnyPublisher<String, Never> {
+        print("running command: \(self.toString())")
         return GitCaller.run(arguments: self.resolve(), inputPipe: inputPipe)
             .removeDuplicates()
             .scan("", { lastResult, nextResult in
@@ -120,6 +121,7 @@ extension CommandSpec {
     
     /// Provides an async await style run method.
     public func runAsync(inputPipe: Pipe? = nil) async throws -> String {
+        print("running command: \(self.toString())")
         return await GitCaller.runAsync(arguments: self.resolve(), inputPipe: inputPipe)
     }
 }

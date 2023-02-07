@@ -6,8 +6,28 @@
 //
 
 import Foundation
+import Combine
 
-public class GitRepo { }
+public class GitRepo {
+    
+    private var internalCancellables: [AnyCancellable] = []
+    
+    private var lastState: StatusResult? = nil
+    
+    init() {
+        Timer.publish(every: 1, on: .main, in: .default)
+            .autoconnect()
+            .flatMap { date in
+                Git().status.run()
+                    .last()
+            }
+            .removeDuplicates()
+            .sink { [weak self]_ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &internalCancellables)
+    }
+}
 
 extension GitRepo: Repository {
     

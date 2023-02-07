@@ -8,7 +8,7 @@
 import Foundation
 
 /// Git command for `git push`
-public final class CommandPush: Command, HasForceParameter, HasSetUpstreamParameter, HasBranchnameParameter, HasRemoteNameParameter
+public final class CommandPush: Command, HasForceParameter, HasSetUpstreamParameter, HasBranchnameParameter, HasRemoteNameParameter, HasTagsParameter
 {
     public override var command: String {
         "push"

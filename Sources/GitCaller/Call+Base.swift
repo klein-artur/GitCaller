@@ -97,6 +97,15 @@ public protocol Repository: ObservableObject {
     
     /// Resets the config for the given key in the given scope.
     func unsetConfig(scope: ConfigScope, key: ConfigKey) async throws
+    
+    /// Creates a tag on the given commit hash. If a message is given, the message is also set.
+    func createTag(name: String, on commit: String, message: String?) async throws
+    
+    /// Pushes the tags.
+    func pushTags() async throws
+    
+    /// Deletes the given tag.
+    func deleteTag(name: String) async throws
 }
 
 public extension Repository {
@@ -122,5 +131,9 @@ public extension Repository {
     
     func mergetool(file: String, tool: String = "opendiff") async throws {
         return try await mergetool(file: file, tool: tool)
+    }
+    
+    func createTag(name: String, on commit: String, message: String? = nil) async throws {
+        return try await createTag(name: name, on: commit, message: message)
     }
 }

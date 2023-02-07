@@ -16,12 +16,15 @@ internal class Path: Parameter {
     var command: String
     
     init(_ path: String) {
-        let finalPath = path.replacingOccurrences(of: " ", with: "\\ ")
-        self.command = finalPath
+        self.command = path
     }
     
     func getCommand(forString: Bool) -> String {
-        return command
+        if forString {
+            return command.replacingOccurrences(of: " ", with: "\\ ")
+        } else {
+            return command
+        }
     }
 }
 

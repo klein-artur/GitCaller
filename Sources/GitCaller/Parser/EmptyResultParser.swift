@@ -91,3 +91,12 @@ extension CommandMergeTool: Parsable {
         return EmptyResultParser()
     }
 }
+
+extension CommandTag: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}

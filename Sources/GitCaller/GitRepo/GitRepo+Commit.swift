@@ -100,7 +100,7 @@ extension GitRepo {
             try await Task.sleep(for: .milliseconds(30))
             try pipe.putIn(content: "y")
             try await Task.sleep(for: .milliseconds(10))
-            try pipe.putIn(content: "d")
+            try pipe.putIn(content: "q")
             return
         }
         try await Task.sleep(for: .milliseconds(10))

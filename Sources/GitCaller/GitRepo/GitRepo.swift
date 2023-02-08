@@ -14,6 +14,8 @@ public class GitRepo {
     
     private var lastState: StatusResult? = nil
     
+    private var ignoreNextElement = false
+    
     init() {
         Timer.publish(every: 5, on: .main, in: .default)
             .autoconnect()
@@ -22,10 +24,20 @@ public class GitRepo {
                     .last()
             }
             .removeDuplicates()
+            .filter({ [weak self] _ in
+                let ignore = self?.ignoreNextElement ?? false
+                self?.ignoreNextElement = false
+                return !ignore
+            })
             .sink { [weak self]_ in
                 self?.objectWillChange.send()
             }
             .store(in: &internalCancellables)
+    }
+    
+    public func needsUpdate() {
+        self.ignoreNextElement = true
+        self.objectWillChange.send()
     }
 }
 
@@ -165,9 +177,5 @@ extension GitRepo: Repository {
         let result = try await Git().checkout.b().branchName(name).finalResult()
         objectWillChange.send()
         return result
-    }
-    
-    public func needsUpdate() {
-        self.objectWillChange.send()
     }
 }

@@ -15,7 +15,7 @@ public class GitRepo {
     private var lastState: StatusResult? = nil
     
     init() {
-        Timer.publish(every: 1, on: .main, in: .default)
+        Timer.publish(every: 5, on: .main, in: .default)
             .autoconnect()
             .flatMap { date in
                 Git().status.run()

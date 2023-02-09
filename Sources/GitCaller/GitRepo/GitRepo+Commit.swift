@@ -53,10 +53,15 @@ extension GitRepo {
         } else {
             try await command.ignoreResult()
         }
-        objectWillChange.send()
+        needsUpdate()
     }
     
-    public func unstage(file path: String, hunk number: Int? = nil, lines: [Int]? = nil) async throws -> RestoreResult {
+    public func unstage(file path: String?, hunk number: Int? = nil, lines: [Int]? = nil) async throws {
+        guard let path = path else {
+            _ = try await Git().reset.runAsync()
+            needsUpdate()
+            return
+        }
         let command = Git()
             .restore
             .staged()
@@ -66,11 +71,9 @@ extension GitRepo {
             .minusMinus()
             .path(path)
                 
-        let result: RestoreResult
-                
         if let number = number {
             let pipe = Pipe()
-            async let waitingResult = command.finalResult(inputPipe: pipe)
+            async let waitingResult: () = command.ignoreResult(inputPipe: pipe)
             
             try await self.handleLineStaging(
                 pipe: pipe,
@@ -79,14 +82,12 @@ extension GitRepo {
                 staging: false
             )
             
-            result = try await waitingResult
+            try await waitingResult
         } else {
-            result = try await command.finalResult()
+            try await command.ignoreResult()
         }
         
-        objectWillChange.send()
-                
-        return result
+        needsUpdate()
     }
     
     private func handleLineStaging(pipe: Pipe, number: Int, lines: [Int]?, staging: Bool) async throws {
@@ -127,7 +128,7 @@ extension GitRepo {
     
     public func commit(message: String) async throws {
         try await Git().commit.message(message).ignoreResult()
-        objectWillChange.send()
+        needsUpdate()
     }
     
     

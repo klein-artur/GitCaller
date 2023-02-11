@@ -382,5 +382,91 @@ final class ParserTestStatus: XCTestCase {
             XCTAssertEqual(status.status, .merging)
         }
     }
+    
+    func testInRebasingProcess() throws {
+        // given
+        let input = """
+        interactive rebase in progress; onto cce8677
+        Last command done (1 command done):
+           pick 785d8c2 test
+        No commands remaining.
+        You are currently rebasing branch 'this-is-a-test' on 'cce8677'.
+          (fix conflicts and then run "git rebase --continue")
+          (use "git rebase --skip" to skip this patch)
+          (use "git rebase --abort" to check out the original branch)
+
+        Unmerged paths:
+          (use "git restore --staged <file>..." to unstage)
+          (use "git add <file>..." to mark resolution)
+            both modified:   testfile
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .rebasing)
+            XCTAssertEqual(status.rebasingStepsDone, 1)
+            XCTAssertEqual(status.rebasingStepsRemaining, 0)
+            XCTAssertEqual(status.numberObRebaseSteps, 1)
+        }
+    }
+    
+    func testInRebasingSecondStepProcess() throws {
+        // given
+        let input = """
+        interactive rebase in progress; onto 3916fe5
+        Last command done (1 command done):
+           pick cce8677 Some test
+        Next command to do (1 remaining command):
+           pick 89b2d5c Test
+          (use "git rebase --edit-todo" to view and edit)
+        You are currently rebasing branch 'this-is-a-test' on '3916fe5'.
+          (all conflicts fixed: run "git rebase --continue")
+
+        nothing to commit, working tree clean
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .rebasing)
+            XCTAssertEqual(status.rebasingStepsDone, 1)
+            XCTAssertEqual(status.rebasingStepsRemaining, 1)
+            XCTAssertEqual(status.numberObRebaseSteps, 2)
+        }
+    }
+    
+    func testInRebasingCommitedButConContinuedStepProcess() throws {
+        // given
+        let input = """
+        interactive rebase in progress; onto d103908
+        Last command done (1 command done):
+           pick cce8677 Some test
+        Next commands to do (8 remaining commands):
+           pick 3916fe5 This is a test
+           pick f876218 teste
+          (use "git rebase --edit-todo" to view and edit)
+        You are currently editing a commit while rebasing branch 'this-is-a-test' on 'd103908'.
+          (use "git commit --amend" to amend the current commit)
+          (use "git rebase --continue" once you are satisfied with your changes)
+        
+        nothing to commit, working tree clean
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        
+        // then
+        result.checkSuccess { status in
+            XCTAssertEqual(status.status, .rebasing)
+            XCTAssertEqual(status.rebasingStepsDone, 1)
+            XCTAssertEqual(status.rebasingStepsRemaining, 8)
+            XCTAssertEqual(status.numberObRebaseSteps, 9)
+        }
+    }
 
 }

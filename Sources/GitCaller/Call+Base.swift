@@ -106,6 +106,18 @@ public protocol Repository: ObservableObject {
     
     /// Deletes the given tag.
     func deleteTag(name: String) async throws
+    
+    /// Starts a rebase of the branch into the current one.
+    func rebase(onto branch: String) async throws
+    
+    /// Aborts the current running rebase
+    func abortRebase() async throws
+    
+    /// Continue the current running rebase
+    func continueRebase() async throws
+    
+    /// Returns the commit message for a rebase if set.
+    func getRebaseCommitMessage() async throws -> String
 }
 
 public extension Repository {

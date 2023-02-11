@@ -121,7 +121,7 @@ public class StatusParser: GitParser, Parser {
         }
         
         var doneRebasingSteps = 0
-        if let doneResult = result.find(rgx: #"Last command done \(([0-9]+) command done\)"#).first {
+        if let doneResult = result.find(rgx: #"Last commands? done \(([0-9]+) commands? done\)"#).first {
             doneRebasingSteps = Int(doneResult[1] ?? "0") ?? 0
         }
         

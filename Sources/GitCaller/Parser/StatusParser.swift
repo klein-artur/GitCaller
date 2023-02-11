@@ -16,16 +16,28 @@ public struct StatusResult: ParseResult {
     public let branch: Branch
     
     public let isMerging: Bool
+    public let isRebasing: Bool
+    
+    public let rebasingStepsDone: Int
+    public let rebasingStepsRemaining: Int
     
     public var stagedChanges: [Change] = []
     public var unstagedChanges: [Change] = []
     public var untrackedChanges: [Change] = []
     public var unmergedChanges: [Change] = []
     
+    public var numberObRebaseSteps: Int {
+        rebasingStepsRemaining + rebasingStepsDone
+    }
+    
     public var status: Status {
         
         if isMerging {
             return .merging
+        }
+        
+        if isRebasing {
+            return .rebasing
         }
         
         if !stagedChanges.isEmpty || !unstagedChanges.isEmpty || !untrackedChanges.isEmpty {
@@ -51,6 +63,9 @@ public struct StatusResult: ParseResult {
         
         /// Repo is in merging state
         case merging
+        
+        /// Repo is currently in a rebase state
+        case rebasing
     }
 }
 
@@ -91,12 +106,28 @@ public class StatusParser: GitParser, Parser {
             return .failure(error)
         }
         
-        var branchName = result.find(rgx: "On branch (.*)").first?[1]
+        let branchResult = result.find(rgx: "On branch (.*)|(?:You are currently rebasing branch|You are currently editing a commit while rebasing branch) '(.*)' on").first
+        var branchName = branchResult?[1] ?? branchResult?[2]
         var detached = false
         
         if let head = result.find(rgx: "(HEAD) detached").first?[1] {
             branchName = head
             detached = true
+        }
+        
+        var isRebasing = false
+        if result.find(rgx: #"You are currently rebasing branch |You are currently editing a commit while rebasing branch "#).first != nil {
+            isRebasing = true
+        }
+        
+        var doneRebasingSteps = 0
+        if let doneResult = result.find(rgx: #"Last command done \(([0-9]+) command done\)"#).first {
+            doneRebasingSteps = Int(doneResult[1] ?? "0") ?? 0
+        }
+        
+        var remainingRebasingSteps = 0
+        if let doneResult = result.find(rgx: #"Next commands? to do \(([0-9]+) remaining commands?\)"#).first {
+            remainingRebasingSteps = Int(doneResult[1] ?? "0") ?? 0
         }
         
         guard let branchName = branchName else {
@@ -142,6 +173,9 @@ public class StatusParser: GitParser, Parser {
                     detached: detached
                 ),
                 isMerging: isMerging,
+                isRebasing: isRebasing,
+                rebasingStepsDone: doneRebasingSteps,
+                rebasingStepsRemaining: remainingRebasingSteps,
                 stagedChanges: getStagedChanged(in: result),
                 unstagedChanges: getUnstagedChanges(in: result),
                 untrackedChanges: getUntrackedFiles(in: result),
@@ -220,6 +254,9 @@ public extension StatusResult {
                 detached: false
             ),
             isMerging: false,
+            isRebasing: false,
+            rebasingStepsDone: 0,
+            rebasingStepsRemaining: 0,
             stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],
             unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged)],
             untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked)],

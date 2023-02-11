@@ -44,6 +44,7 @@ extension GitRepo {
     
     public func continueMerge() async throws {
         try await Git().merge._continue().ignoreResult()
+        self.needsUpdate()
     }
     
     public func useTheirs(path: String) async throws {
@@ -62,9 +63,31 @@ extension GitRepo {
             .finalResult()
         if result.didChange {
             try await self.stage(file: path)
-            objectWillChange.send()
+            self.needsUpdate()
         } else {
             throw ParseError(type: .issueParsing, rawOutput: "Something went wrong staging the file")
         }
     }
+    
+    public func rebase(onto branch: String) async throws {
+        try await Git().rebase.onto().branchName(branch).ignoreResult()
+        self.needsUpdate()
+    }
+    
+    public func continueRebase() async throws {
+        try await Git().rebase._continue().ignoreResult()
+        self.needsUpdate()
+    }
+    
+    public func abortRebase() async throws {
+        try await Git().rebase.abort().ignoreResult()
+        self.needsUpdate()
+    }
+    
+    public func getRebaseCommitMessage() async throws -> String {
+        var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
+        gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/rebase-merge/message"
+        return try String(contentsOfFile: gitPath)
+    }
+    
 }

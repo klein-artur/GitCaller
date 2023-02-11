@@ -83,6 +83,15 @@ extension CommandMerge: Parsable {
     }
 }
 
+extension CommandRebase: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}
+
 extension CommandMergeTool: Parsable {
     
     public typealias Success = EmptyResult

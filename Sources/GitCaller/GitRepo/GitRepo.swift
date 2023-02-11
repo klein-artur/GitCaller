@@ -6,8 +6,40 @@
 //
 
 import Foundation
+import Combine
 
-public class GitRepo { }
+public class GitRepo {
+    
+    private var internalCancellables: [AnyCancellable] = []
+    
+    private var lastState: StatusResult? = nil
+    
+    private var ignoreNextElement = false
+    
+    init() {
+        Timer.publish(every: 5, on: .main, in: .default)
+            .autoconnect()
+            .flatMap { date in
+                Git().status.run()
+                    .last()
+            }
+            .removeDuplicates()
+            .filter({ [weak self] _ in
+                let ignore = self?.ignoreNextElement ?? false
+                self?.ignoreNextElement = false
+                return !ignore
+            })
+            .sink { [weak self]_ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &internalCancellables)
+    }
+    
+    public func needsUpdate() {
+        self.ignoreNextElement = true
+        self.objectWillChange.send()
+    }
+}
 
 extension GitRepo: Repository {
     
@@ -145,9 +177,5 @@ extension GitRepo: Repository {
         let result = try await Git().checkout.b().branchName(name).finalResult()
         objectWillChange.send()
         return result
-    }
-    
-    public func needsUpdate() {
-        self.objectWillChange.send()
     }
 }

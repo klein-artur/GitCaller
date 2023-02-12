@@ -211,6 +211,12 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
         return CommitList(base: Array(base[bounds]))
     }
     
+    public subscript(hash: String) -> Element? {
+        return self.first { commitInfo in
+            commitInfo.commit.objectHash == hash || commitInfo.commit.shortHash == hash
+        }
+    }
+    
     private func commit(for position: Index) -> Commit {
         return base[position]
     }

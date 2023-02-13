@@ -19,6 +19,7 @@ public class Commit: HasHash {
     public var branches: [String]
     public var tags: [String]
     public var parents: [String]
+    public var diff: String
     
     public init(
         objectHash: String,
@@ -31,7 +32,8 @@ public class Commit: HasHash {
         committerDateString: String,
         branches: [String],
         tags: [String],
-        parents: [String]
+        parents: [String],
+        diff: String
     ) {
         self.objectHash = objectHash
         self.shortHash = shortHash
@@ -44,6 +46,7 @@ public class Commit: HasHash {
         self.branches = branches
         self.tags = tags
         self.parents = parents
+        self.diff = diff
     }
     
     public var authorDate: Date {
@@ -52,5 +55,15 @@ public class Commit: HasHash {
     
     public var committerDate: Date {
         committerDateString.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") ?? .now
+    }
+    
+    public var diffResult: DiffResult? {
+        get throws {
+            guard !diff.isEmpty else {
+                return nil
+            }
+            
+            return try DiffResultParser().parse(result: diff).get()
+        }
     }
 }

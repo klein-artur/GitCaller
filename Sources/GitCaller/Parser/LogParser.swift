@@ -611,7 +611,7 @@ public class LogResultParser: GitParser, Parser {
             throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
         }
         
-        guard let authorDate = part[7]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
+        guard let authorDate = part[7] else {
             throw ParseError(type: .commitWithoutDate, rawOutput: result)
         }
         
@@ -619,7 +619,7 @@ public class LogResultParser: GitParser, Parser {
             throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
         }
         
-        guard let committerDate = part[10]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
+        guard let committerDate = part[10] else {
             throw ParseError(type: .commitWithoutDate, rawOutput: result)
         }
         
@@ -633,9 +633,9 @@ public class LogResultParser: GitParser, Parser {
             subject: part[11]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
             message: part[12]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
             author: Person(name: authorName, email: authorEmail),
-            authorDate: authorDate,
+            authorDateString: authorDate,
             committer: Person(name: committerName, email: committerEmail),
-            committerDate: committerDate,
+            committerDateString: committerDate,
             branches: branches,
             tags: tags,
             parents: parents

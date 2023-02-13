@@ -13,9 +13,9 @@ public class Commit: HasHash {
     public var subject: String
     public var message: String
     public var author: Person
-    public var authorDate: Date
+    public var authorDateString: String
     public var committer: Person
-    public var committerDate: Date
+    public var committerDateString: String
     public var branches: [String]
     public var tags: [String]
     public var parents: [String]
@@ -26,9 +26,9 @@ public class Commit: HasHash {
         subject: String,
         message: String,
         author: Person,
-        authorDate: Date,
+        authorDateString: String,
         committer: Person,
-        committerDate: Date,
+        committerDateString: String,
         branches: [String],
         tags: [String],
         parents: [String]
@@ -38,11 +38,19 @@ public class Commit: HasHash {
         self.subject = subject
         self.message = message
         self.author = author
-        self.authorDate = authorDate
+        self.authorDateString = authorDateString
         self.committer = committer
-        self.committerDate = committerDate
+        self.committerDateString = committerDateString
         self.branches = branches
         self.tags = tags
         self.parents = parents
+    }
+    
+    public var authorDate: Date {
+        authorDateString.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") ?? .now
+    }
+    
+    public var committerDate: Date {
+        committerDateString.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") ?? .now
     }
 }

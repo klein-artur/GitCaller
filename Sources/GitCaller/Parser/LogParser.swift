@@ -135,7 +135,7 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
     public typealias Indices = CountableRange<Int>
     
     lazy var amount: Int = {
-        base.components(separatedBy:  "<<<----%mCommitm%---->>>").filter { !$0.isEmpty }.count
+        base.find(rgx: "<<<----%mCommitm%---->>>").count
     }()
     
     private var commits: [Commit] = []

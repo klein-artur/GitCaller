@@ -23,6 +23,9 @@ public protocol Repository: ObservableObject {
     /// Returns the commits
     func getLog() async throws -> LogResult
     
+    /// Returns a log just containing this commit
+    func show(commitHash: String) async throws -> LogResult
+    
     /// Returns the git status.
     func getStatus() async throws -> StatusResult
     

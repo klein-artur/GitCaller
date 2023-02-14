@@ -109,4 +109,46 @@ final class ParserTestLog: XCTestCase {
         XCTAssertNil(try parsedLog.commits?[0].diffResult)
         XCTAssertNotNil(try parsedLog.commits?[1].diffResult)
     }
+    
+    func testParsingGitLogSingleResult() throws {
+        // given
+        let input = """
+        <<<----%mCommitm%---->>>da4830b<<<----%mDatam%---->>><<<----%mDatam%---->>>da4830b5ef3697795ec38d59044291a6b2135214<<<----%mDatam%---->>>8258f9663d1fbde63d97ac9a387f6a3dddf4b801<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>
+        
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let parsedLog = try! result.get()
+        
+        // then
+        XCTAssertNotNil(parsedLog.commits)
+        XCTAssertEqual(parsedLog.commits?.count, 1)
+        
+        let diffResult = """
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        """
+        
+        XCTAssertEqual(parsedLog.commits?[0].diff, diffResult)
+        XCTAssertNotNil(try parsedLog.commits?[0].diffResult)
+    }
 }

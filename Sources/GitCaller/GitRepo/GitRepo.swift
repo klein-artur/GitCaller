@@ -49,35 +49,6 @@ extension GitRepo: Repository {
         try await Git().clone(url: url).finalResult()
     }
     
-    public func getLog(branchNames: [String]) async throws -> LogResult {
-        try await Git()
-            .log
-            .forEach(branchNames, alternator: { command, branchName in
-                command.branchName(branchName)
-            })
-            .pretty(.format(LogResultParser.prettyFormat))
-            .topoOrder()
-            .finalResult()
-    }
-    
-    public func getLog(commitHash: String) async throws -> LogResult {
-        try await Git()
-            .log
-            .commitHash(commitHash)
-            .pretty(.format(LogResultParser.prettyFormat))
-            .topoOrder()
-            .finalResult()
-    }
-    
-    public func getLog() async throws -> LogResult {
-        try await Git()
-            .log
-            .pretty(.format(LogResultParser.prettyFormat))
-            .topoOrder()
-            .all()
-            .finalResult()
-    }
-    
     public func getStatus() async throws -> StatusResult {
         try await Git().status.finalResult()
     }

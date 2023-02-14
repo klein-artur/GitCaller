@@ -720,3 +720,12 @@ extension CommandLog: Parsable {
         return LogResultParser()
     }
 }
+
+extension CommandShow: Parsable {
+    
+    public typealias Success = LogResult
+    
+    public var parser: LogResultParser {
+        return LogResultParser()
+    }
+}

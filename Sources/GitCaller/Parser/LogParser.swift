@@ -135,7 +135,7 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
     public typealias Indices = CountableRange<Int>
     
     lazy var amount: Int = {
-        base.find(rgx: "<<<----%mCommitm%---->>>").count
+        parser.amount ?? base.find(rgx: LogResultParser.commitDelimiter).count
     }()
     
     private var commits: [Commit] = []
@@ -604,12 +604,20 @@ private extension Array where Element == GitPath {
 
 public class LogResultParser: GitParser, Parser {
     
+    fileprivate var amount: Int?
+    
+    public static let commitDelimiter = "<<<----%mCommitm%---->>>"
+    public static let dataDelimiter = "<<<----%mDatam%---->>>"
+    
     /// This parser needs this format to parse the commit correctly.
-    public static let prettyFormat = "<<<----%%mCommitm%%---->>>%h<<<----%%mDatam%%---->>>%d<<<----%%mDatam%%---->>>%H<<<----%%mDatam%%---->>>%P<<<----%%mDatam%%---->>>%an<<<----%%mDatam%%---->>>%ae<<<----%%mDatam%%---->>>%aD<<<----%%mDatam%%---->>>%cn<<<----%%mDatam%%---->>>%ce<<<----%%mDatam%%---->>>%cD<<<----%%mDatam%%---->>>%s<<<----%%mDatam%%---->>>%B<<<----%%mDatam%%---->>>"
+    public static let parserFormat = "<<<----%%mCommitm%%---->>>%h<<<----%%mDatam%%---->>>%d<<<----%%mDatam%%---->>>%H<<<----%%mDatam%%---->>>%P<<<----%%mDatam%%---->>>%an<<<----%%mDatam%%---->>>%ae<<<----%%mDatam%%---->>>%aD<<<----%%mDatam%%---->>>%cn<<<----%%mDatam%%---->>>%ce<<<----%%mDatam%%---->>>%cD<<<----%%mDatam%%---->>>%s<<<----%%mDatam%%---->>>%B<<<----%%mDatam%%---->>>"
+    
+    public static let counterFormat = "%h%%"
     
     public typealias Success = LogResult
     
-    override public init() {
+    public init(amount: Int? = nil) {
+        self.amount = amount
         super.init()
     }
     
@@ -622,7 +630,7 @@ public class LogResultParser: GitParser, Parser {
             return .success(LogResult(originalOutput: result, commits: nil))
         }
         
-        if !result.contains("<<<----%mCommitm%---->>>") || !result.contains("<<<----%mDatam%---->>>") {
+        if !result.contains(Self.commitDelimiter) || !result.contains(Self.dataDelimiter) {
             return .failure(ParseError(type: .wrongLogFormat, rawOutput: result))
         }
         
@@ -630,7 +638,7 @@ public class LogResultParser: GitParser, Parser {
     }
     
     fileprivate func parse(hunk: String, number: Int) throws -> ([Commit], String) {
-        let matches = hunk.split(separator: "<<<----%mCommitm%---->>>", maxSplits: number)
+        let matches = hunk.split(separator: Self.commitDelimiter, maxSplits: number)
 
         var commits = [Commit]()
         var commitsLong = [String: Commit]()
@@ -652,13 +660,12 @@ public class LogResultParser: GitParser, Parser {
             commitsLong[commit.objectHash] = commit
         }
 
-        return (commits, resolved.joined(separator: "<<<----%mCommitm%---->>>"))
+        return (commits, resolved.joined(separator: Self.commitDelimiter))
     }
     
     private func parseCommit(commitString: String, result: String) throws -> Commit {
         
-        
-        let part = commitString.components(separatedBy: "<<<----%mDatam%---->>>")
+        let part = commitString.components(separatedBy: Self.dataDelimiter)
         
         let (branches, tags) = parseBranchesAndTags(in: part[1])
         

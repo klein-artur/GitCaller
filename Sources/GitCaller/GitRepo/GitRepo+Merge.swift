@@ -30,7 +30,13 @@ extension GitRepo {
     public func getMergeCommitMessage() async throws -> String {
         var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
         gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/MERGE_MSG"
-        return try String(contentsOfFile: gitPath)
+        let result: String
+        do {
+            result = try String(contentsOfFile: gitPath)
+        } catch {
+            result = ""
+        }
+        return result
     }
     
     public func abortMerge() async throws {
@@ -87,7 +93,13 @@ extension GitRepo {
     public func getRebaseCommitMessage() async throws -> String {
         var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
         gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/rebase-merge/message"
-        return try String(contentsOfFile: gitPath)
+        let result: String
+        do {
+            result = try String(contentsOfFile: gitPath)
+        } catch {
+            result = ""
+        }
+        return result
     }
     
 }

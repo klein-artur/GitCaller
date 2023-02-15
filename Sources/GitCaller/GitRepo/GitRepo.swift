@@ -65,7 +65,7 @@ extension GitRepo: Repository {
             result = try await Git().checkout.track().branchName(branch.name).finalResult()
         }
         if result.didChange {
-            objectWillChange.send()
+            needsUpdate()
         }
         return result
     }
@@ -85,14 +85,32 @@ extension GitRepo: Repository {
             // TODO: Delete remotes.
             result = try await Git().branch.finalResult()
         }
-        objectWillChange.send()
+        needsUpdate()
         return result
     }
     
     public func revert(unstagedFile path: String) async throws -> RestoreResult {
         let result = try await Git().restore.path(path).finalResult()
-        objectWillChange.send()
+        needsUpdate()
         return result
+    }
+    
+    public func revert(unstagedFiles paths: [String]) async throws {
+        if paths.isEmpty {
+            try await Git()
+                .reset
+                .hard()
+                .ignoreResult()
+        } else {
+            try await Git()
+                .restore
+                .minusMinus()
+                .forEach(paths, alternator: { command, path in
+                    command.path(path)
+                })
+                .ignoreResult()
+        }
+        needsUpdate()
     }
     
     public func revertDeleted(unstagedFile path: String) async throws {
@@ -102,7 +120,7 @@ extension GitRepo: Repository {
     
     public func fetch() async throws {
         try await Git().fetch.ignoreResult()
-        objectWillChange.send()
+        needsUpdate()
     }
     
     public func pull(force: Bool) async throws -> PullResult {
@@ -120,7 +138,7 @@ extension GitRepo: Repository {
             pullResult = try await Git().pull.finalResult()
         }
         if pullResult.didChange {
-            objectWillChange.send()
+            needsUpdate()
         }
         return pullResult
     }
@@ -139,14 +157,14 @@ extension GitRepo: Repository {
             pushResult = try await Git().push.finalResult()
         }
         if pushResult.didChange {
-            objectWillChange.send()
+            needsUpdate()
         }
         return pushResult
     }
     
     public func newBranchAndCheckout(name: String) async throws -> CheckoutResult {
         let result = try await Git().checkout.b().branchName(name).finalResult()
-        objectWillChange.send()
+        needsUpdate()
         return result
     }
 }

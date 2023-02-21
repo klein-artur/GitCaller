@@ -22,8 +22,9 @@ extension GitRepo {
     
     public func mergetool(file: String, tool: String) async throws {
         let pipe = Pipe()
-        try await Git().mergetool.tool(tool).minusMinus().path(file).ignoreResult(inputPipe: pipe)
+        async let result: () = Git().mergetool.tool(tool).minusMinus().path(file).ignoreResult(inputPipe: pipe)
         try pipe.putIn(content: "n")
+        try await result
         self.needsUpdate()
     }
     

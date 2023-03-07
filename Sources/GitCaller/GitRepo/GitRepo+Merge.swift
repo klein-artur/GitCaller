@@ -77,7 +77,7 @@ extension GitRepo {
     }
     
     public func rebase(onto branch: String) async throws {
-        try await Git().rebase.onto().branchName(branch).ignoreResult()
+        try await Git().rebase.branchName(branch).ignoreResult()
         self.needsUpdate()
     }
     

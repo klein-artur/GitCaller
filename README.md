@@ -2,7 +2,9 @@
 
 This is a swift package currently in development. It is meant as a git bridge for swift, using git through shell, returning the result. Do not consider this as done. 
 
-It is used by the project [GitBuddy](https://github.com/klein-artur/GitBuddy). 
+I try to release stable versions via the main branch, but it can be way behind the current state of development. So feel free to use the develop branch which will always have the newest state (but also issues and unclean states).
+
+It is used by the project [Jagu](https://github.com/klein-artur/Jagu). 
 
 ## Integration as a Swift Package.
 
@@ -18,7 +20,7 @@ The idea is to have a nice api to run git commands For example:
  - `git add filename` will be `Git().add.path("filename")`
 
 
-To get the command as string, call `Git().init.resolve()`.
+To get the command as string, call `Git().init.getString()`.
 
 To run the command you have two possibilities:
 

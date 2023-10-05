@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git show`
-public final class CommandShow: Command, HasCommitHashParameter, HasPrettyParameter
+public final class CommandShow: ParametrableCommandSpec, HasCommitHashParameter, HasPrettyParameter
 {
-    public override var command: String {
+    public var command: String {
         "show"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

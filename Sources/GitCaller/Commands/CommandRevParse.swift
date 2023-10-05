@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git rev-parse`
-public final class CommandRevParse: Command, HasGitDirParameter, HasPathFormatParameter
+public final class CommandRevParse: ParametrableCommandSpec, HasGitDirParameter, HasPathFormatParameter
 {
-    public override var command: String {
+    public var command: String {
         "rev-parse"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

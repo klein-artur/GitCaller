@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git restart`
-public final class CommandReset: Command, HasHardParameter, HasBranchnameParameter
+public final class CommandReset: ParametrableCommandSpec, HasHardParameter, HasBranchnameParameter
 {
-    public override var command: String {
+    public var command: String {
         "reset"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

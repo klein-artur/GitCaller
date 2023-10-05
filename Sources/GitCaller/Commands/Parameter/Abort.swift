@@ -9,7 +9,7 @@ import Foundation
 
 
 /// Makes a command able to use the `--abort` parameter.
-public protocol HasAbortParameter: Parametrable {
+public protocol HasAbortParameter: ParametrableCommandSpec{
     func abort() -> Self
 }
 

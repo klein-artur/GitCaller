@@ -14,7 +14,7 @@ public enum ConfigScope: String {
 }
 
 /// Makes a command able to use the config key parameter.
-public protocol HasConfigScopeParameter: Parametrable {
+public protocol HasConfigScopeParameter: ParametrableCommandSpec{
     func configScope(_ value: ConfigScope) -> Self
 }
 

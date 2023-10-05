@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--staged` parameter.
-public protocol HasStagedParameter: Parametrable {
+public protocol HasStagedParameter: ParametrableCommandSpec{
     func staged() -> Self
 }
 

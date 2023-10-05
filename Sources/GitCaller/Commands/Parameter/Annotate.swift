@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--annotate` parameter.
-public protocol HasAnnotateParameter: Parametrable {
+public protocol HasAnnotateParameter: ParametrableCommandSpec{
     func annotate() -> Self
 }
 

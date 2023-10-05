@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a -b parameter.
-public protocol HasLowercaseBParameter: Parametrable {
+public protocol HasLowercaseBParameter: ParametrableCommandSpec{
     func b() -> Self
 }
 

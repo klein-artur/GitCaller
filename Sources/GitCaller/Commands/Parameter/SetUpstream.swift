@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--set-upstream` parameter.
-public protocol HasSetUpstreamParameter: Parametrable {
+public protocol HasSetUpstreamParameter: ParametrableCommandSpec{
     func setUpstream() -> Self
 }
 

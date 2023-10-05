@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a `-d` parameter.
-public protocol HasLowercaseDParameter: Parametrable {
+public protocol HasLowercaseDParameter: ParametrableCommandSpec{
     func d() -> Self
 }
 

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--track` parameter.
-public protocol HasTrackParameter: Parametrable {
+public protocol HasTrackParameter: ParametrableCommandSpec{
     func track() -> Self
 }
 

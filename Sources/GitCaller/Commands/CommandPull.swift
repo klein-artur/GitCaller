@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git pull`
-public final class CommandPull: Command, HasForceParameter
+public final class CommandPull: ParametrableCommandSpec, HasForceParameter
 {
-    public override var command: String {
+    public var command: String {
         "pull"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

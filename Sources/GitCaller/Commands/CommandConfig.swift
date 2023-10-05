@@ -7,9 +7,21 @@
 
 import Foundation
 
-public final class CommandConfig: Command, HasConfigKeyParameter, HasConfigScopeParameter, HasUnsetParameter {
-    public override var command: String {
+public final class CommandConfig: ParametrableCommandSpec, HasConfigKeyParameter, HasConfigScopeParameter, HasUnsetParameter {
+    public var command: String {
         "config"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

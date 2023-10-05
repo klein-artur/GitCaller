@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--` parameter.
-public protocol HasMinusMinusParameter: Parametrable {
+public protocol HasMinusMinusParameter: ParametrableCommandSpec {
     func minusMinus() -> Self
 }
 

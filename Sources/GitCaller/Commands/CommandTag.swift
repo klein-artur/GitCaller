@@ -7,10 +7,22 @@
 
 import Foundation
 
-public final class CommandTag: Command, HasTagnameParameter, HasMessageParameter, HasCommitHashParameter, HasLowercaseDParameter, HasAnnotateParameter
+public final class CommandTag: ParametrableCommandSpec, HasTagnameParameter, HasMessageParameter, HasCommitHashParameter, HasLowercaseDParameter, HasAnnotateParameter
 {
-    public override var command: String {
+    public var command: String {
         "tag"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

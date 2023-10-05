@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git branch`
-public final class CommandBranch: Command, HasAllParameter, HasRemotesParameter, HasVerboseParameter, HasLowercaseDParameter, HasUppercaseDParameter, HasBranchnameParameter
+public final class CommandBranch: ParametrableCommandSpec, HasAllParameter, HasRemotesParameter, HasVerboseParameter, HasLowercaseDParameter, HasUppercaseDParameter, HasBranchnameParameter
 {
-    public override var command: String {
+    public var command: String {
         "branch"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

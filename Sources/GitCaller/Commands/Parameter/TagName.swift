@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a tag name parameter.
-public protocol HasTagnameParameter: Parametrable {
+public protocol HasTagnameParameter: ParametrableCommandSpec{
     func tagName(_ tagName: String) -> Self
 }
 

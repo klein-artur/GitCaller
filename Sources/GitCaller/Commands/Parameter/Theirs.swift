@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--theirs` parameter.
-public protocol HasTheirsParameter: Parametrable {
+public protocol HasTheirsParameter: ParametrableCommandSpec{
     func theirs() -> Self
 }
 

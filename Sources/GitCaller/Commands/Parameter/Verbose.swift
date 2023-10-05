@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--verbose` parameter.
-public protocol HasVerboseParameter: Parametrable {
+public protocol HasVerboseParameter: ParametrableCommandSpec{
     func verbose() -> Self
 }
 

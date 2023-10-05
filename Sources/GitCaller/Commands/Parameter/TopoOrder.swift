@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--topo-order` parameter.
-public protocol HasTopoOrderParameter: Parametrable {
+public protocol HasTopoOrderParameter: ParametrableCommandSpec{
     func topoOrder() -> Self
 }
 

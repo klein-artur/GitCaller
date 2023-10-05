@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--git-dir` parameter.
-public protocol HasGitDirParameter: Parametrable {
+public protocol HasGitDirParameter: ParametrableCommandSpec{
     func gitDir() -> Self
 }
 

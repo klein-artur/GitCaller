@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--no-ff` parameter.
-public protocol HasNoFFParameter: Parametrable {
+public protocol HasNoFFParameter: ParametrableCommandSpec{
     func noFF() -> Self
 }
 

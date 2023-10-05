@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--remotes` parameter.
-public protocol HasRemotesParameter: Parametrable {
+public protocol HasRemotesParameter: ParametrableCommandSpec{
     func remotes() -> Self
 }
 

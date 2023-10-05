@@ -7,13 +7,25 @@
 
 import Foundation
 
-final class CommandCommit: Command,
+final class CommandCommit: ParametrableCommandSpec,
                            HasAllParameter,
                            HasMessageParameter,
                            HasPathParameter
 {
-    override var command: String {
+    public var command: String {
         "commit"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

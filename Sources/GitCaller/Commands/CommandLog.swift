@@ -8,10 +8,31 @@
 import Foundation
 
 /// Git command for `git log`
-public final class CommandLog: Command, HasCommitHashParameter, HasBranchnameParameter, HasNoColorParameter, HasDecorateParameter, HasPrettyParameter, HasTopoOrderParameter, HasAllParameter, HasMinusMinusParameter, HasPatchParameter
+public final class CommandLog: ParametrableCommandSpec,
+                                HasCommitHashParameter,
+                                HasBranchnameParameter,
+                                HasNoColorParameter,
+                                HasDecorateParameter,
+                                HasPrettyParameter,
+                                HasTopoOrderParameter,
+                                HasAllParameter,
+                                HasMinusMinusParameter,
+                                HasPatchParameter
 {
-    public override var command: String {
+    public var command: String {
         "log"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

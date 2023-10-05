@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--message=<msg>` parameter.
-public protocol HasMessageParameter: Parametrable {
+public protocol HasMessageParameter: ParametrableCommandSpec{
     func message(_ msg: String) -> Self
 }
 

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--unset` parameter.
-public protocol HasUnsetParameter: Parametrable {
+public protocol HasUnsetParameter: ParametrableCommandSpec{
     func unset() -> Self
 }
 

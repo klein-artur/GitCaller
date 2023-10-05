@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--onto` parameter.
-public protocol HasOntoParameter: Parametrable {
+public protocol HasOntoParameter: ParametrableCommandSpec{
     func onto() -> Self
 }
 

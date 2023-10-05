@@ -109,3 +109,12 @@ extension CommandTag: Parsable {
         return EmptyResultParser()
     }
 }
+
+extension CommandReset: Parsable {
+    
+    public typealias Success = EmptyResult
+    
+    public var parser: EmptyResultParser {
+        return EmptyResultParser()
+    }
+}

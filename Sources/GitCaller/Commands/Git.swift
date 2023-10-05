@@ -7,8 +7,8 @@
 
 import Foundation
 
-class RawCommand: CommandSpec {
-    let command: String
+public final class RawCommand: CommandSpec {
+    public let command: String
     
     init(_ raw: String, git: Git) {
         self.command = raw
@@ -18,7 +18,7 @@ class RawCommand: CommandSpec {
     public var preceeding: (any CommandSpec)? = nil
 }
 
-public class Git: CommandSpec {
+public final class Git: CommandSpec {
     public let command = "git"
     public var preceeding: (any CommandSpec)? = nil
     

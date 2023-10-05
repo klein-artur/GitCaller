@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--quiet` parameter.
-public protocol HasQuietParameter: Parametrable {
+public protocol HasQuietParameter: ParametrableCommandSpec{
     func quiet() -> Self
 }
 

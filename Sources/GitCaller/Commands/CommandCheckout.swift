@@ -7,10 +7,22 @@
 
 import Foundation
 
-public final class CommandCheckout: Command, HasLowercaseBParameter, HasBranchnameParameter, HasTrackParameter, HasPathParameter, HasOursParameter, HasTheirsParameter
+public final class CommandCheckout: ParametrableCommandSpec, HasLowercaseBParameter, HasBranchnameParameter, HasTrackParameter, HasPathParameter, HasOursParameter, HasTheirsParameter
 {
-    public override var command: String {
+    public var command: String {
         "checkout"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

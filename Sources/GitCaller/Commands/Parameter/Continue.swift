@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--continue` parameter.
-public protocol HasContinueParameter: Parametrable {
+public protocol HasContinueParameter: ParametrableCommandSpec{
     func _continue() -> Self
 }
 

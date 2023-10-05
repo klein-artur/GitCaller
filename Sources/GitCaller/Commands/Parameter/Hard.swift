@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--hard` parameter.
-public protocol HasHardParameter: Parametrable {
+public protocol HasHardParameter: ParametrableCommandSpec{
     func hard() -> Self
 }
 

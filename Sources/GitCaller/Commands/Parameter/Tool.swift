@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--tool=<toolname>` parameter.
-public protocol HasToolParameter: Parametrable {
+public protocol HasToolParameter: ParametrableCommandSpec{
     func tool(_ toolName: String) -> Self
 }
 

@@ -56,7 +56,7 @@ extension CommandSpec {
         
         commands.append(self.command)
         
-        if let selfParametrable = self as? (any Parametrable) {
+        if let selfParametrable = self as? (any ParametrableCommandSpec) {
             parameter.append(contentsOf: selfParametrable.parameter)
         }
         
@@ -90,30 +90,4 @@ extension CommandSpec {
         }
         return newCommand
     }
-}
-
-public class Command: Parametrable {
-    public var parameter: [Parameter]
-    
-    public var preceeding: (any CommandSpec)?
-    
-    public var command: String {
-        ""
-    }
-    
-    required init(
-        preceeding: (any CommandSpec)?,
-        parameter: [Parameter] = []
-    ) {
-        self.parameter = parameter
-        self.preceeding = preceeding
-    }
-    
-    public func copy() -> Self {
-        return Self.init(
-            preceeding: self.preceeding, parameter: self.parameter
-        )
-    }
-    
-    
 }

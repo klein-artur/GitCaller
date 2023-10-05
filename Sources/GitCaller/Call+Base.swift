@@ -23,6 +23,9 @@ public protocol Repository: ObservableObject {
     /// Returns the commits
     func getLog() async throws -> LogResult
     
+    /// Returns a log just containing this commit
+    func show(commitHash: String) async throws -> LogResult
+    
     /// Returns the git status.
     func getStatus() async throws -> StatusResult
     
@@ -38,11 +41,20 @@ public protocol Repository: ObservableObject {
     /// Adds a given file, if no path given adds all.
     func stage(file path: String?, hunk number: Int?, lines: [Int]?) async throws
     
+    /// Adds the given files
+    func stage(files paths: [String]) async throws
+    
     /// unstages a given file, if no path given adds all.
     func unstage(file path: String?, hunk number: Int?, lines: [Int]?) async throws
     
+    /// Unstages the given files
+    func unstage(files paths: [String]) async throws
+    
     /// reverts unstaged files.
     func revert(unstagedFile path: String) async throws -> RestoreResult
+    
+    /// reverts unstaged files.
+    func revert(unstagedFiles paths: [String]) async throws
     
     /// reverts unstaged files.
     func revertDeleted(unstagedFile path: String) async throws

@@ -10,14 +10,11 @@ import Foundation
 public class LogResult: ParseResult {
     public var originalOutput: String
     
-    public var commits: [Commit]?
+    public var commits: CommitList?
     
-    /// Ther commits with the commit hash as key.
-    public var commitDict: [String: Commit]?
-    
-    public var commitPathTree: CommitList? {
+    public var commitPathTree: CommitInfoList? {
         if let commits = commits {
-            return CommitList(base: commits)
+            return CommitInfoList(base: commits)
         } else {
             return nil
         }
@@ -25,19 +22,11 @@ public class LogResult: ParseResult {
     
     public init(
         originalOutput: String,
-        commits: [Commit]? = nil,
+        commits: CommitList? = nil,
         commitDict: [String : Commit]? = nil
     ) {
         self.originalOutput = originalOutput
         self.commits = commits
-        
-        if let commitDict = commitDict {
-            self.commitDict = commitDict
-        } else if let commits = commits {
-            for commit in commits {
-                self.commitDict?[commit.objectHash] = commit
-            }
-        }
     }
 }
 
@@ -135,6 +124,69 @@ class GitPath {
 
 public class CommitList: BidirectionalCollection, RandomAccessCollection {
     
+    private static let hunkSize = 10
+    
+    public typealias Element = Commit
+    
+    public typealias Index = Int
+    
+    public typealias SubSequence = CommitList
+    
+    public typealias Indices = CountableRange<Int>
+    
+    lazy var amount: Int = {
+        parser.amount ?? base.find(rgx: LogResultParser.commitDelimiter).count
+    }()
+    
+    private var commits: [Commit] = []
+    
+    let base: String
+    var rest: String
+    let parser: LogResultParser
+    
+    init(base: String, parser: LogResultParser) {
+        self.base = base
+        self.parser = parser
+        self.rest = base
+    }
+    
+    public var startIndex: Int {
+        0
+    }
+    
+    public var endIndex: Int {
+        amount
+    }
+    
+    public func index(before i: Int) -> Int {
+        i - 1
+    }
+    
+    public func index(after i: Int) -> Int {
+        i + 1
+    }
+    
+    public subscript(position: Int) -> Element {
+        try! self.resolveUntil(index: position)
+        return commits[position]
+    }
+    
+    public subscript(bounds: Range<Index>) -> SubSequence {
+        return CommitList(base: "", parser: LogResultParser())
+    }
+    
+    private func resolveUntil(index: Int) throws {
+        while commits.count < index + 1 && !rest.isEmpty {
+            print("resolving hunk for index \(index)")
+            let (resolvedCommits, toRemove) = try parser.parse(hunk: rest, number: Self.hunkSize)
+            commits.append(contentsOf: resolvedCommits)
+            rest.trimPrefix(toRemove)
+        }
+    }
+}
+
+public class CommitInfoList: BidirectionalCollection, RandomAccessCollection {
+    
     public enum CommitListError: Error {
         case outOfBounds
     }
@@ -145,20 +197,14 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
     
     public typealias Index = Int
     
-    public typealias SubSequence = CommitList
+    public typealias SubSequence = CommitInfoList
     
     public typealias Indices = CountableRange<Int>
     
     public typealias Element = CommitListInformation
     
-    let base: [Commit]
-    lazy var commitDict: [String: Commit] = {
-        var result = [String: Commit]()
-        for commit in base {
-            result[commit.objectHash] = commit
-        }
-        return result
-    }()
+    let base: CommitList
+    var commitDictSafe: [String: Commit] = [:]
     var indexedObjects = [Element]()
     var foundParents: Set<String> = Set()
     var accessedIndex = 0
@@ -184,10 +230,21 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
         return base.count
     }
     
-    init(base: [Commit]) {
+    init(base: CommitList) {
         self.base = base
         let firstCommit = base.first
         self.currentTreeCommits = firstCommit != nil ? [firstCommit!] : []
+    }
+    
+    private func getCommitByHash(hash: String) -> Commit? {
+        if let commit = commitDictSafe[hash] {
+            return commit
+        }
+        guard let commit = base.first (where: { $0.objectHash == hash }) else {
+            return nil
+        }
+        commitDictSafe[hash] = commit
+        return commit
     }
     
     public subscript(position: Index) -> Element {
@@ -208,7 +265,13 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
     }
     
     public subscript(bounds: Range<Index>) -> SubSequence {
-        return CommitList(base: Array(base[bounds]))
+        return CommitInfoList(base: CommitList(base: "", parser: LogResultParser()))
+    }
+    
+    public subscript(hash: String) -> Element? {
+        return self.first { commitInfo in
+            commitInfo.commit.objectHash == hash || commitInfo.commit.shortHash == hash
+        }
     }
     
     private func commit(for position: Index) -> Commit {
@@ -345,7 +408,7 @@ public class CommitList: BidirectionalCollection, RandomAccessCollection {
     
     private func getParents(for commit: Commit) -> [Commit] {
         commit.parents.map {
-            let commit = commitDict[$0]
+            let commit = getCommitByHash(hash: $0)
             self.foundParents.insert(commit?.objectHash ?? "")
             return commit
         }.filter { $0 != nil }.map { $0! }
@@ -541,12 +604,20 @@ private extension Array where Element == GitPath {
 
 public class LogResultParser: GitParser, Parser {
     
+    fileprivate var amount: Int?
+    
+    public static let commitDelimiter = "<<<----%mCommitm%---->>>"
+    public static let dataDelimiter = "<<<----%mDatam%---->>>"
+    
     /// This parser needs this format to parse the commit correctly.
-    public static let prettyFormat = "<<<----mCommitm---->>>%n%h%n%d%n%H%n%P%n%an <%ae>%n%aD%n%cn <%ce>%n%cD%n%s%n%B"
+    public static let parserFormat = "<<<----%%mCommitm%%---->>>%h<<<----%%mDatam%%---->>>%d<<<----%%mDatam%%---->>>%H<<<----%%mDatam%%---->>>%P<<<----%%mDatam%%---->>>%an<<<----%%mDatam%%---->>>%ae<<<----%%mDatam%%---->>>%aD<<<----%%mDatam%%---->>>%cn<<<----%%mDatam%%---->>>%ce<<<----%%mDatam%%---->>>%cD<<<----%%mDatam%%---->>>%s<<<----%%mDatam%%---->>>%B<<<----%%mDatam%%---->>>"
+    
+    public static let counterFormat = "%h%%"
     
     public typealias Success = LogResult
     
-    override public init() {
+    public init(amount: Int? = nil) {
+        self.amount = amount
         super.init()
     }
     
@@ -556,90 +627,75 @@ public class LogResultParser: GitParser, Parser {
         }
         
         if result.hasPrefix("fatal: "){
-            return .success(LogResult(originalOutput: result, commits: []))
+            return .success(LogResult(originalOutput: result, commits: nil))
         }
         
-        if !result.contains("<<<----mCommitm---->>>") {
+        if !result.contains(Self.commitDelimiter) || !result.contains(Self.dataDelimiter) {
             return .failure(ParseError(type: .wrongLogFormat, rawOutput: result))
         }
         
-        do {
-            let matches = result.find(rgx: #"([0-9a-fA-F]+)\n(?:\s\(([^\n]+)\))?\n([0-9a-fA-F]{40})\n((?:[0-9a-fA-F]{40}\s?)*)\n([^\n]+)\s<([^\n]*)>\n([^\n]+)\n([^\n]+)\s<([^\n]*)>\n([^\n]+)\n(.*)\n([\s\S]*?)(?=<<<----mCommitm---->>>|\Z)"#)
-            
-            var commits = [Commit]()
-            var commitsLong = [String: Commit]()
-            
-            for match in matches {
-                let commit = try parseCommit(part: match, result: result)
-                commits.append(commit)
-                commitsLong[commit.objectHash] = commit
-            }
-            
-            return .success(
-                LogResult(
-                    originalOutput: result,
-                    commits: commits,
-                    commitDict: commitsLong
-                )
-            )
-        } catch {
-            if let parseError = error as? ParseError {
-                return .failure(parseError)
-            } else {
-                return .success(LogResult(originalOutput: result, commits: []))
-            }
-        }
+        return .success(LogResult(originalOutput: result, commits: CommitList(base: result, parser: self)))
     }
     
-    private func parseCommit(part: RgxResult, result: String) throws -> Commit {
+    fileprivate func parse(hunk: String, number: Int) throws -> ([Commit], String) {
+        let matches = hunk.split(separator: Self.commitDelimiter, maxSplits: number)
+
+        var commits = [Commit]()
+        var commitsLong = [String: Commit]()
         
-        guard let shortHash = part[1] else {
-            throw ParseError(type: .commitWithoutCommmitHash, rawOutput: result)
+        var resolved = [""]
+
+        var count = 0
+        for match in matches {
+            guard count < number else {
+                break
+            }
+            resolved.append(String(match))
+            guard !match.isEmpty else {
+                continue
+            }
+            count += 1
+            let commit = try parseCommit(commitString: String(match), result: hunk)
+            commits.append(commit)
+            commitsLong[commit.objectHash] = commit
         }
+
+        return (commits, resolved.joined(separator: Self.commitDelimiter))
+    }
+    
+    private func parseCommit(commitString: String, result: String) throws -> Commit {
         
-        guard let commitHash = part[3] else {
-            throw ParseError(type: .commitWithoutCommmitHash, rawOutput: result)
-        }
+        let part = commitString.components(separatedBy: Self.dataDelimiter)
         
-        guard let authorName = part[5], let authorEmail = part[6] else {
-            throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
-        }
+        let (branches, tags) = parseBranchesAndTags(in: part[1])
         
-        guard let authorDate = part[7]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
-            throw ParseError(type: .commitWithoutDate, rawOutput: result)
-        }
-        
-        guard let committerName = part[8], let committerEmail = part[9] else {
-            throw ParseError(type: .commitWithoutAuthor, rawOutput: result)
-        }
-        
-        guard let committerDate = part[10]?.toDate(format: "EEE, dd MMM yyyy HH:mm:ss ZZZZ") else {
-            throw ParseError(type: .commitWithoutDate, rawOutput: result)
-        }
-        
-        let (branches, tags) = parseBranchesAndTags(in: part[2] ?? "")
-        
-        let parents: [String] = part[4]?.split(separator: " ").map({ String($0) }).filter({ !$0.isEmpty }) ?? []
+        let parents: [String] = part[3].split(separator: " ").map({ String($0) }).filter({ !$0.isEmpty })
         
         return Commit(
-            objectHash: commitHash,
-            shortHash: shortHash,
-            subject: part[11]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
-            message: part[12]?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "",
-            author: Person(name: authorName, email: authorEmail),
-            authorDate: authorDate,
-            committer: Person(name: committerName, email: committerEmail),
-            committerDate: committerDate,
+            objectHash: part[2],
+            shortHash: part[0],
+            subject: part[10],
+            message: part[11],
+            author: Person(name: part[4], email: part[5]),
+            authorDateString: part[6],
+            committer: Person(name: part[7], email: part[8]),
+            committerDateString: part[9],
             branches: branches,
             tags: tags,
-            parents: parents
+            parents: parents,
+            diff: part[12].trimmingCharacters(in: .whitespacesAndNewlines)
         )
     }
     
-    private func parseBranchesAndTags(in part: String) -> ([String], [String]) {
+    private func parseBranchesAndTags(in string: String) -> ([String], [String]) {
         
         var branches = [String]()
         var tags = [String]()
+        
+        let part = string
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: "(", with: "")
+            .replacingOccurrences(of: ")", with: "")
         
         part.split(separator: ", ")
             .map { String($0).trimmingCharacters(in: .whitespacesAndNewlines) }
@@ -664,6 +720,15 @@ public class LogResultParser: GitParser, Parser {
 }
 
 extension CommandLog: Parsable {
+    
+    public typealias Success = LogResult
+    
+    public var parser: LogResultParser {
+        return LogResultParser()
+    }
+}
+
+extension CommandShow: Parsable {
     
     public typealias Success = LogResult
     

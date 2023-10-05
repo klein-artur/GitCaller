@@ -22,15 +22,22 @@ extension GitRepo {
     
     public func mergetool(file: String, tool: String) async throws {
         let pipe = Pipe()
-        try await Git().mergetool.tool(tool).minusMinus().path(file).ignoreResult(inputPipe: pipe)
+        async let result: () = Git().mergetool.tool(tool).minusMinus().path(file).ignoreResult(inputPipe: pipe)
         try pipe.putIn(content: "n")
+        try await result
         self.needsUpdate()
     }
     
     public func getMergeCommitMessage() async throws -> String {
         var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
         gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/MERGE_MSG"
-        return try String(contentsOfFile: gitPath)
+        let result: String
+        do {
+            result = try String(contentsOfFile: gitPath)
+        } catch {
+            result = ""
+        }
+        return result
     }
     
     public func abortMerge() async throws {
@@ -70,7 +77,7 @@ extension GitRepo {
     }
     
     public func rebase(onto branch: String) async throws {
-        try await Git().rebase.onto().branchName(branch).ignoreResult()
+        try await Git().rebase.branchName(branch).ignoreResult()
         self.needsUpdate()
     }
     
@@ -87,7 +94,13 @@ extension GitRepo {
     public func getRebaseCommitMessage() async throws -> String {
         var gitPath = try await Git().revParse.pathFormat(.absolute).gitDir().runAsync()
         gitPath = "\(gitPath.trimmingCharacters(in: .whitespacesAndNewlines))/rebase-merge/message"
-        return try String(contentsOfFile: gitPath)
+        let result: String
+        do {
+            result = try String(contentsOfFile: gitPath)
+        } catch {
+            result = ""
+        }
+        return result
     }
     
 }

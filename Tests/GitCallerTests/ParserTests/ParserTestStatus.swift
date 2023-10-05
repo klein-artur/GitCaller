@@ -399,6 +399,8 @@ final class ParserTestStatus: XCTestCase {
           (use "git restore --staged <file>..." to unstage)
           (use "git add <file>..." to mark resolution)
             both modified:   testfile
+
+        no changes added to commit (use "git add" and/or "git commit -a")
         """
         
         // when

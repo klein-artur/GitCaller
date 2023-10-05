@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add an url parameter.
-public protocol HasUrlParameter: Parametrable {
+public protocol HasUrlParameter: ParametrableCommandSpec {
     func url(_ url: String) -> Self
 }
 

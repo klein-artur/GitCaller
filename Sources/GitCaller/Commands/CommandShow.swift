@@ -1,16 +1,17 @@
 //
-//  CommandClone.swift
+//  CommandShow.swift
 //  
 //
-//  Created by Artur Hellmann on 02.01.23.
+//  Created by Artur Hellmann on 14.02.23.
 //
 
 import Foundation
 
-/// Git command for `git clone`.
-public final class CommandClone: ParametrableCommandSpec, HasUrlParameter {
+/// Git command for `git show`
+public final class CommandShow: ParametrableCommandSpec, HasCommitHashParameter, HasPrettyParameter
+{
     public var command: String {
-        "clone"
+        "show"
     }
     
     public var parameter: [Parameter]
@@ -27,8 +28,7 @@ public final class CommandClone: ParametrableCommandSpec, HasUrlParameter {
 }
 
 extension Git {
-    public func clone(url: String) -> CommandClone {
-        return CommandClone(preceeding: self)
-            .url(url)
+    public var show: CommandShow {
+        return CommandShow(preceeding: self)
     }
 }

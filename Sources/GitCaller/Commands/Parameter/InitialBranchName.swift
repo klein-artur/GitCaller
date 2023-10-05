@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--initial-branch=<branch_name>` parameter.
-public protocol HasInitialBranchNameParameter: Parametrable {
+public protocol HasInitialBranchNameParameter: ParametrableCommandSpec{
     func initialBranch(name: String) -> Self
 }
 

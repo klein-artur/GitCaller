@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--patch` parameter.
-public protocol HasPatchParameter: Parametrable {
+public protocol HasPatchParameter: ParametrableCommandSpec{
     func patch() -> Self
 }
 

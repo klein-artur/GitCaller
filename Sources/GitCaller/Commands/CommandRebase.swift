@@ -8,10 +8,22 @@
 import Foundation
 
 /// Git command for `git rebase`
-public final class CommandRebase: Command, HasOntoParameter, HasBranchnameParameter, HasContinueParameter, HasAbortParameter
+public final class CommandRebase: ParametrableCommandSpec, HasOntoParameter, HasBranchnameParameter, HasContinueParameter, HasAbortParameter
 {
-    public override var command: String {
+    public var command: String {
         "rebase"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

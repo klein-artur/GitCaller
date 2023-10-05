@@ -35,7 +35,7 @@ public enum PrettyFormat {
 }
 
 /// Makes a command able to use the `--pretty=<formatting>` parameter.
-public protocol HasPrettyParameter: Parametrable {
+public protocol HasPrettyParameter: ParametrableCommandSpec{
     func pretty(_ value: PrettyFormat) -> Self
 }
 

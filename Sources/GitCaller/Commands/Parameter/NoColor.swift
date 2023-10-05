@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--no-color` parameter.
-public protocol HasNoColorParameter: Parametrable {
+public protocol HasNoColorParameter: ParametrableCommandSpec{
     func noColor() -> Self
 }
 

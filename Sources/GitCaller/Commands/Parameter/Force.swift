@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--force` parameter.
-public protocol HasForceParameter: Parametrable {
+public protocol HasForceParameter: ParametrableCommandSpec{
     func force() -> Self
 }
 

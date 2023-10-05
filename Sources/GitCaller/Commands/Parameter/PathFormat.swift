@@ -13,7 +13,7 @@ public enum PathFormatValue: String {
 }
 
 /// Makes a command able to use the `--path-format=<absolute|relative>` parameter.
-public protocol HasPathFormatParameter: Parametrable {
+public protocol HasPathFormatParameter: ParametrableCommandSpec{
     func pathFormat(_ value: PathFormatValue) -> Self
 }
 

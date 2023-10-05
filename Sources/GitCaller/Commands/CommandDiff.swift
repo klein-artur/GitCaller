@@ -7,9 +7,22 @@
 
 import Foundation
 
-public final class CommandDiff: Command, HasPathParameter, HasStagedParameter, HasMinusMinusParameter {
-    public override var command: String {
+public final class CommandDiff: ParametrableCommandSpec, HasPathParameter, HasStagedParameter, HasMinusMinusParameter {
+    
+    public var command: String {
         "diff"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

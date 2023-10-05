@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--tags` parameter.
-public protocol HasTagsParameter: Parametrable {
+public protocol HasTagsParameter: ParametrableCommandSpec{
     func tags() -> Self
 }
 

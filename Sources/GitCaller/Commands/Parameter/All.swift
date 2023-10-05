@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to use the `--all` parameter.
-public protocol HasAllParameter: Parametrable {
+public protocol HasAllParameter: ParametrableCommandSpec{
     func all() -> Self
 }
 

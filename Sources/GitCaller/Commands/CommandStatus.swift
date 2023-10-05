@@ -7,10 +7,22 @@
 
 import Foundation
 
-public final class CommandStatus: Command
+public final class CommandStatus: ParametrableCommandSpec
 {
-    public override var command: String {
+    public var command: String {
         "status"
+    }
+    
+    public var parameter: [Parameter]
+    
+    public var preceeding: (any CommandSpec)?
+    
+    public init(
+        preceeding: (any CommandSpec)?,
+        parameter: [Parameter] = []
+    ) {
+        self.preceeding = preceeding
+        self.parameter = parameter
     }
 }
 

@@ -90,6 +90,28 @@ extension GitRepo {
         needsUpdate()
     }
     
+    public func stage(files paths: [String]) async throws {
+        try await Git().add
+            .minusMinus()
+            .forEach(paths) { command, path in
+                command.path(path)
+            }
+            .ignoreResult()
+        needsUpdate()
+    }
+    
+    public func unstage(files paths: [String]) async throws {
+        try await Git()
+            .restore
+            .staged()
+            .minusMinus()
+            .forEach(paths, alternator: { command, path in
+                command.path(path)
+            })
+            .ignoreResult()
+        needsUpdate()
+    }
+    
     private func handleLineStaging(pipe: Pipe, number: Int, lines: [Int]?, staging: Bool) async throws {
         
         try await Task.sleep(for: .milliseconds(30))

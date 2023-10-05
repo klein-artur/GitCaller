@@ -8,7 +8,7 @@
 import Foundation
 
 /// Makes a command able to add a remote name parameter.
-public protocol HasRemoteNameParameter: Parametrable {
+public protocol HasRemoteNameParameter: ParametrableCommandSpec{
     func remoteName(_ remoteName: String) -> Self
 }
 

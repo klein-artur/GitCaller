@@ -12,7 +12,7 @@ public enum ConfigKey: String {
 }
 
 /// Makes a command able to use the config key parameter.
-public protocol HasConfigKeyParameter: Parametrable {
+public protocol HasConfigKeyParameter: ParametrableCommandSpec{
     func configKey(_ key: ConfigKey, value: String?) -> Self
 }
 

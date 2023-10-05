@@ -24,100 +24,32 @@ final class ParserTestLog: XCTestCase {
     func testParsingGitLog() throws {
         // given
         let input = """
-        <<<----mCommitm---->>>
-        67faa10
-         (HEAD -> main, origin/main, tag: test)
-        67faa10a224db86ef4e796ab0a14b056ad4001a6
-        da4830b5ef3697795ec38d59044291a6b2135214
-        John Doe <johndoe.thats@testl.com>
-        Fri, 6 Jan 2023 13:07:35 +0100
-        John Doe <johndoe.thats@testl.com>
-        Fri, 6 Jan 2023 13:07:35 +0100
-        More hash handling improvements
-        More hash handling improvements
-        <<<----mCommitm---->>>
-        da4830b
+        <<<----%mCommitm%---->>>67faa10<<<----%mDatam%---->>> (HEAD -> main, origin/main, tag: test)<<<----%mDatam%---->>>67faa10a224db86ef4e796ab0a14b056ad4001a6<<<----%mDatam%---->>>da4830b5ef3697795ec38d59044291a6b2135214<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 13:07:35 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 13:07:35 +0100<<<----%mDatam%---->>>More hash handling improvements<<<----%mDatam%---->>>More hash handling improvements<<<----%mDatam%---->>>
         
-        da4830b5ef3697795ec38d59044291a6b2135214
-        8258f9663d1fbde63d97ac9a387f6a3dddf4b801
-        John Doe <johndoe.thats@testl.com>
-        Fri, 6 Jan 2023 12:15:27 +0100
-        John Doe <johndoe.thats@testl.com>
-        Fri, 6 Jan 2023 12:15:27 +0100
-        improved Hash Handling
-        improved Hash Handling
-        <<<----mCommitm---->>>
-        8258f96
+        <<<----%mCommitm%---->>>da4830b<<<----%mDatam%---->>><<<----%mDatam%---->>>da4830b5ef3697795ec38d59044291a6b2135214<<<----%mDatam%---->>>8258f9663d1fbde63d97ac9a387f6a3dddf4b801<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>
         
-        8258f9663d1fbde63d97ac9a387f6a3dddf4b801
-        b4dd6c93eec0df86b12055739db31491c59c8517 1050a3c5f6343e1bb6073df2a67566d47c11e6b2
-        John Doe <johndoe.thats@testl.com>
-        Thu, 5 Jan 2023 01:37:33 +0100
-        John Doe <johndoe.thats@testl.com>
-        Thu, 5 Jan 2023 01:37:33 +0100
-        Merge branch 'main' of github.com:klein-artur/GitParser
-        Merge branch 'main' of github.com:klein-artur/GitParser
-        <<<----mCommitm---->>>
-        b4dd6c9
-        
-        b4dd6c93eec0df86b12055739db31491c59c8517
-        258ae77965e33e9885dcc8072db5f53e3bd7f22f
-        John Doe <johndoe.thats@testl.com>
-        Thu, 5 Jan 2023 01:37:17 +0100
-        John Doe <johndoe.thats@testl.com>
-        Thu, 5 Jan 2023 01:37:17 +0100
-        Adding parent commits to commit
-        Adding parent commits to commit
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        <<<----%mCommitm%---->>>8258f96<<<----%mDatam%---->>><<<----%mDatam%---->>>8258f9663d1fbde63d97ac9a387f6a3dddf4b801<<<----%mDatam%---->>>b4dd6c93eec0df86b12055739db31491c59c8517 1050a3c5f6343e1bb6073df2a67566d47c11e6b2<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Thu, 5 Jan 2023 01:37:33 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Thu, 5 Jan 2023 01:37:33 +0100<<<----%mDatam%---->>>Merge branch 'main' of github.com:klein-artur/GitParser<<<----%mDatam%---->>>Merge branch 'main' of github.com:klein-artur/GitParser<<<----%mDatam%---->>>
+        <<<----%mCommitm%---->>>b4dd6c9<<<----%mDatam%---->>><<<----%mDatam%---->>>b4dd6c93eec0df86b12055739db31491c59c8517<<<----%mDatam%---->>>258ae77965e33e9885dcc8072db5f53e3bd7f22f<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Thu, 5 Jan 2023 01:37:17 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Thu, 5 Jan 2023 01:37:17 +0100<<<----%mDatam%---->>>Adding parent commits to commit<<<----%mDatam%---->>>Adding parent commits to commit
         And more
         
         lines of
         
         message
         
-        stuff
-        <<<----mCommitm---->>>
-        1050a3c
-        
-        1050a3c5f6343e1bb6073df2a67566d47c11e6b2
-        258ae77965e33e9885dcc8072db5f53e3bd7f22f
-        John Doe <johndoe.thats@testl.com>
-        Wed, 4 Jan 2023 22:15:24 +0100
-        GitHub <noreply@github.com>
-        Wed, 4 Jan 2023 22:15:24 +0100
-        Update README.md
-        Update README.md<<<----mCommitm---->>>
-        258ae77
-        
-        258ae77965e33e9885dcc8072db5f53e3bd7f22f
-        3c393184a116f4cbfa55aeb68ca39818e76dd870
-        John Doe <johndoe.thats@testl.com>
-        Wed, 4 Jan 2023 14:17:40 +0100
-        John Doe <johndoe.thats@testl.com>
-        Wed, 4 Jan 2023 14:17:40 +0100
-        parsing commitlist
-        parsing commitlist
-        <<<----mCommitm---->>>
-        3c39318
-        
-        3c393184a116f4cbfa55aeb68ca39818e76dd870
-        01edf9e57f55d457ca84072b1a0702ba97b58c98
-        John Doe <johndoe.thats@testl.com>
-        Tue, 3 Jan 2023 23:26:46 +0100
-        John Doe <johndoe.thats@testl.com>
-        Tue, 3 Jan 2023 23:26:46 +0100
-        Parsing logs
-        Parsing logs
-        <<<----mCommitm---->>>
-        01edf9e
-        
-        01edf9e57f55d457ca84072b1a0702ba97b58c98
-        
-        John Doe <johndoe.thats@testl.com>
-        Tue, 3 Jan 2023 00:18:13 +0100
-        John Doe <johndoe.thats@testl.com>
-        Tue, 3 Jan 2023 17:14:57 +0100
-        Initial Commit
-        Initial Commit
+        stuff<<<----%mDatam%---->>>
+        <<<----%mCommitm%---->>>1050a3c<<<----%mDatam%---->>><<<----%mDatam%---->>>1050a3c5f6343e1bb6073df2a67566d47c11e6b2<<<----%mDatam%---->>>258ae77965e33e9885dcc8072db5f53e3bd7f22f<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Wed, 4 Jan 2023 22:15:24 +0100<<<----%mDatam%---->>>GitHub<<<----%mDatam%---->>>noreply@github.com<<<----%mDatam%---->>>Wed, 4 Jan 2023 22:15:24 +0100<<<----%mDatam%---->>>Update README.md<<<----%mDatam%---->>>Update README.md<<<----%mDatam%---->>><<<----%mCommitm%---->>>258ae77<<<----%mDatam%---->>><<<----%mDatam%---->>>258ae77965e33e9885dcc8072db5f53e3bd7f22f<<<----%mDatam%---->>>3c393184a116f4cbfa55aeb68ca39818e76dd870<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Wed, 4 Jan 2023 14:17:40 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Wed, 4 Jan 2023 14:17:40 +0100<<<----%mDatam%---->>>parsing commitlist<<<----%mDatam%---->>>parsing commitlist<<<----%mDatam%---->>>
+        <<<----%mCommitm%---->>>3c39318<<<----%mDatam%---->>><<<----%mDatam%---->>>3c393184a116f4cbfa55aeb68ca39818e76dd870<<<----%mDatam%---->>>01edf9e57f55d457ca84072b1a0702ba97b58c98<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Tue, 3 Jan 2023 23:26:46 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Tue, 3 Jan 2023 23:26:46 +0100<<<----%mDatam%---->>>Parsing logs<<<----%mDatam%---->>>Parsing logs<<<----%mDatam%---->>>
+        <<<----%mCommitm%---->>>01edf9e<<<----%mDatam%---->>><<<----%mDatam%---->>>01edf9e57f55d457ca84072b1a0702ba97b58c98<<<----%mDatam%---->>><<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Tue, 3 Jan 2023 00:18:13 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Tue, 3 Jan 2023 17:14:57 +0100<<<----%mDatam%---->>>Initial Commit<<<----%mDatam%---->>>Initial Commit<<<----%mDatam%---->>>
         """
         
         // when
@@ -158,5 +90,65 @@ final class ParserTestLog: XCTestCase {
         
         XCTAssertEqual(parsedLog.commits?[3].message, otherTest)
         XCTAssertEqual(parsedLog.commits?[3].subject, "Adding parent commits to commit")
+        
+        let diffResult = """
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        """
+        
+        XCTAssertEqual(parsedLog.commits?[1].diff, diffResult)
+        
+        XCTAssertNil(try parsedLog.commits?[0].diffResult)
+        XCTAssertNotNil(try parsedLog.commits?[1].diffResult)
+    }
+    
+    func testParsingGitLogSingleResult() throws {
+        // given
+        let input = """
+        <<<----%mCommitm%---->>>da4830b<<<----%mDatam%---->>><<<----%mDatam%---->>>da4830b5ef3697795ec38d59044291a6b2135214<<<----%mDatam%---->>>8258f9663d1fbde63d97ac9a387f6a3dddf4b801<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>John Doe<<<----%mDatam%---->>>johndoe.thats@testl.com<<<----%mDatam%---->>>Fri, 6 Jan 2023 12:15:27 +0100<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>improved Hash Handling<<<----%mDatam%---->>>
+        
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let parsedLog = try! result.get()
+        
+        // then
+        XCTAssertNotNil(parsedLog.commits)
+        XCTAssertEqual(parsedLog.commits?.count, 1)
+        
+        let diffResult = """
+        diff --git a/test b/test
+        index cf7acc3..017b47c 100644
+        --- a/test
+        +++ b/test
+        @@ -1,4 +1,4 @@
+        -asdfasdf
+        +fdsaasdf
+         asdf
+         asdfasdf
+         asdfasdfasdf
+        """
+        
+        XCTAssertEqual(parsedLog.commits?[0].diff, diffResult)
+        XCTAssertNotNil(try parsedLog.commits?[0].diffResult)
     }
 }

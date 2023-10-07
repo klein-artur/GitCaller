@@ -73,6 +73,7 @@ public struct Change {
     public let path: String
     public let kind: Kind
     public let state: State
+    public let additionals: String
     
     public enum Kind: String {
         case modified = "modified"
@@ -220,20 +221,22 @@ public class StatusParser: GitParser, Parser {
                 Change(
                     path: foundChange,
                     kind: .newFile,
-                    state: .untracked
+                    state: .untracked,
+                    additionals: ""
                 )
             }
     }
     
     private func findChangesIn(group: String, state: Change.State) -> [Change] {
-        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed|deleted by them|deleted by us):\s*(.*)"#)
+        return group.find(rgx: #"\s*(modified|deleted|new file|both added|both modified|renamed|deleted by them|deleted by us):\s*([^(\n]+)(?:\((.*)\))?"#)
             .map { foundChange in
                 let substring = foundChange[2]?.split(separator: " -> ").last
-                let path = String(substring!)
+                let path = String(substring!).trimmingCharacters(in: .whitespacesAndNewlines)
                 return Change(
                     path: path,
                     kind: Change.Kind(rawValue: foundChange[1]!)!,
-                    state: state
+                    state: state,
+                    additionals: foundChange[3] ?? ""
                 )
             }
     }
@@ -257,10 +260,10 @@ public extension StatusResult {
             isRebasing: false,
             rebasingStepsDone: 0,
             rebasingStepsRemaining: 0,
-            stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged)],
-            unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged)],
-            untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked)],
-            unmergedChanges: [Change(path: "some/unmerged/path.file", kind: .bothAdded, state: .unmerged)]
+            stagedChanges: [Change(path: "some/path.file", kind: .newFile, state: .staged, additionals: "")],
+            unstagedChanges: [Change(path: "some/other/path.file", kind: .newFile, state: .unstaged, additionals: "")],
+            untrackedChanges: [Change(path: "some/new/path.file", kind: .newFile, state: .untracked, additionals: "")],
+            unmergedChanges: [Change(path: "some/unmerged/path.file", kind: .bothAdded, state: .unmerged, additionals: "")]
         )
     }
 }

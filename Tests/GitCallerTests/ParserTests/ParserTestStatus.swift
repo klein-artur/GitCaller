@@ -470,5 +470,35 @@ final class ParserTestStatus: XCTestCase {
             XCTAssertEqual(status.numberObRebaseSteps, 9)
         }
     }
+    
+    func testChangeWithAdditionals() throws {
+        // given
+        let input = """
+        On branch main
+        Your branch is ahead of 'origin/main' by 1 commit.
+          (use "git push" to publish your local commits)
+
+        Changes to be committed:
+          (use "git restore --staged <file>..." to unstage)
+            modified:   shared/ContentView (new commits)
+
+        Untracked files:
+          (use "git add <file>..." to include in what will be committed)
+            shared/DeviceDetail/Test.swift
+            shared/DeviceDetail/Test2.swift
+        """
+        
+        // when
+        let result = sut.parse(result: input)
+        let status = try result.get()
+        
+        // then
+        XCTAssertEqual(status.stagedChanges.count, 1)
+        XCTAssertEqual(status.stagedChanges[0].state, .staged)
+        XCTAssertEqual(status.stagedChanges[0].kind, .modified)
+        XCTAssertEqual(status.stagedChanges[0].path, "shared/ContentView")
+        XCTAssertEqual(status.stagedChanges[0].additionals, "new commits")
+        XCTAssertEqual(status.status, .unclean)
+    }
 
 }

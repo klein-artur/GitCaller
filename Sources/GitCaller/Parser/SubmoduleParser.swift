@@ -18,9 +18,9 @@ public struct SubmoduleResult: ParseResult {
     public var submodules: [Submodule]
     
     public struct Submodule {
-        let path: String
-        let commitHash: String
-        let state: State
+        public let path: String
+        public let commitHash: String
+        public let state: State
         
         public enum State: String {
             case clean = " "

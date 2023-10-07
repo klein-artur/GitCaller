@@ -132,6 +132,9 @@ public protocol Repository {
     
     /// Returns the commit message for a rebase if set.
     func getRebaseCommitMessage() async throws -> String
+    
+    // MARK: Submodule
+    var listOfSubmodules: SubmoduleResult { get async throws }
 }
 
 public extension Repository {

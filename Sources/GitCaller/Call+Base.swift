@@ -6,10 +6,12 @@
 //
 
 import Foundation
-import SwiftUI
+import Combine
 
 /// Baseclass for GitCaller. Enables mockability
-public protocol Repository: ObservableObject {
+public protocol Repository {
+    
+    var repositoryUpdated: PassthroughSubject<Void, Never> { get }
     
     /// Clones the project behind URL
     func clone(url: String) async throws -> CloneResult

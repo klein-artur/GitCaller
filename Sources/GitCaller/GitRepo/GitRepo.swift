@@ -10,6 +10,8 @@ import Combine
 
 public class GitRepo {
     
+    public var repositoryUpdated = PassthroughSubject<Void, Never>()
+    
     private var internalCancellables: [AnyCancellable] = []
     
     private var lastState: StatusResult? = nil
@@ -30,14 +32,14 @@ public class GitRepo {
                 return !ignore
             })
             .sink { [weak self]_ in
-                self?.objectWillChange.send()
+                self?.repositoryUpdated.send()
             }
             .store(in: &internalCancellables)
     }
     
     public func needsUpdate() {
         self.ignoreNextElement = true
-        self.objectWillChange.send()
+        self.repositoryUpdated.send()
     }
 }
 

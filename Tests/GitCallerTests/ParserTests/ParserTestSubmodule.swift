@@ -78,6 +78,6 @@ final class ParserTestSubmodule: XCTestCase {
         
         // then
         result.checkError(messageIfNotError: "should return a parse error invalid line format.", type: .invalidLineFormat)
-    } 
+    }
 
 }

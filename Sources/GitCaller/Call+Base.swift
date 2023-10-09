@@ -135,6 +135,8 @@ public protocol Repository {
     
     // MARK: Submodule
     var listOfSubmodules: SubmoduleResult { get async throws }
+    
+    func update(submodule path: String) async throws
 }
 
 public extension Repository {

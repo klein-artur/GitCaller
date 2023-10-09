@@ -15,4 +15,16 @@ extension GitRepo {
                 .finalResult()
         }
     }
+    
+    public func update(submodule path: String) async throws {
+        _ = try await Git()
+            .submodule()
+            .update()
+            .initialize()
+            .recursive()
+            .path(path)
+            .runAsync()
+        
+        self.repositoryUpdated.send()
+    }
 }
